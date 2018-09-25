@@ -10,16 +10,22 @@ public:
 
 	void push_back(T data);
 	void push_front(T data);
+	void insert(int index, T data);
+
 	void pop_back();
 	void pop_front();
-	T front();
+	void remove_at(const int index);
+	void remove_value(const int value);
+
 	T back();
-	void insert(int index, T data);
+	T front();
+	T value_at(const int index);
+
+	bool empty();
+	int size() const { return Size; }
 	void clear();
-	bool isEmpty();
-	int getSize() const { return size; }
+
 	T & operator[](const int index);
-	void removeAt(const int index);
 
 private:
 	template<typename T>
@@ -36,7 +42,7 @@ private:
 
 private:
 	Node<T>* pHead;
-	int size;
+	int Size;
 };
 
 
@@ -46,7 +52,7 @@ template<typename T>
 LinkedList<T>::LinkedList()
 {
 	pHead = nullptr;
-	size = 0;
+	Size = 0;
 }
 
 template<typename T>
@@ -60,7 +66,7 @@ void LinkedList<T>::push_back(T data)
 {
 	if (pHead == nullptr) {
 		pHead = new Node<T>(data, pHead);
-		size++;
+		Size++;
 		return;
 	}
 
@@ -71,12 +77,17 @@ void LinkedList<T>::push_back(T data)
 
 	pTemp->pNext = new Node<T>(data);
 
-	size++;
+	Size++;
 }
 
 template<typename T>
 T & LinkedList<T>::operator[](const int index)
 {
+	if (index >= Size || index < 0) {
+		std::cerr << "Out of bounds error!!!" << std::endl;
+		exit(EXIT_FAILURE);
+	}
+
 	Node<T>* pTemp = pHead;
 	int counter = 0;
 
@@ -93,13 +104,13 @@ template<typename T>
 void LinkedList<T>::push_front(T data)
 {
 	pHead = new Node<T>(data, pHead);
-	size++;
+	Size++;
 }
 
 template<typename T>
 void LinkedList<T>::clear()
 {
-	while (size) {
+	while (Size) {
 		pop_front();
 	}
 }
@@ -114,19 +125,19 @@ void LinkedList<T>::pop_front()
 	pHead = pHead->pNext;
 
 	delete pTemp;
-	size--;
+	Size--;
 }
 
 template<typename T>
 void LinkedList<T>::pop_back()
 {
-	removeAt(size - 1);
+	remove_at(Size - 1);
 }
 
 template<typename T>
 void LinkedList<T>::insert(int index, T data)
 {
-	if (index > size)
+	if (index > Size)
 		return;
 
 	if (index == 0) {
@@ -142,22 +153,22 @@ void LinkedList<T>::insert(int index, T data)
 	Node<T>* pNode = new Node<T>(data, pPrevious->pNext);
 	pPrevious->pNext = pNode;
 
-	size++;
+	Size++;
 }
 
 template<typename T>
-bool LinkedList<T>::isEmpty()
+bool LinkedList<T>::empty()
 {
-	return size == 0 ? true : false;
+	return Size == 0 ? true : false;
 }
 
 template<typename T>
-void LinkedList<T>::removeAt(const int index)
+void LinkedList<T>::remove_at(const int index)
 {
 	if (pHead == nullptr)
 		return;
 
-	if (index >= size)
+	if (index >= Size)
 		return;
 
 	if (index == 0) {
@@ -174,7 +185,7 @@ void LinkedList<T>::removeAt(const int index)
 	pPrevious->pNext = pDelete->pNext;
 
 	delete pDelete;
-	size--;
+	Size--;
 }
 
 template<typename T>
@@ -202,4 +213,34 @@ T LinkedList<T>::back()
 		pTemp = pTemp->pNext;
 
 	return pTemp->data;
+}
+
+template<typename T>
+T LinkedList<T>::value_at(const int index)
+{
+	return this->operator[](index);
+}
+
+// TODO 
+// Think about while (?)
+template<typename T>
+void LinkedList<T>::remove_value(const int value)
+{
+	if (pHead == nullptr) {
+		std::cerr << "List is empty!!!" << std::endl;
+		exit(EXIT_FAILURE);
+	}
+
+	Node<T>* pTemp = pHead;
+	int index = 0;
+
+	while (pTemp != nullptr) {
+		if (pTemp->data == value) {
+			pTemp = pTemp->pNext;
+			remove_at(index);
+		}
+		else
+			pTemp = pTemp->pNext;
+			index++;
+	}
 }

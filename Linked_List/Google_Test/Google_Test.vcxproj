@@ -18,6 +18,10 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C:\g_test_dir\googletest\src\gtest-all.cc" />
+    <ClCompile Include="C:\g_test_dir\googletest\src\gtest_main.cc" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{09ACCF39-B46C-42CA-89E7-BED3BC1A99F6}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
@@ -145,13 +149,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="C:\g_test_dir\googletest\src\gtest-all.cc" />
-    <ClCompile Include="C:\g_test_dir\googletest\src\gtest_main.cc" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

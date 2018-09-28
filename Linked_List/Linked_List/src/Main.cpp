@@ -1,5 +1,6 @@
 #include <iostream>
 #include "LinkedList.h"
+#include "LinkedList.cpp"
 
 int main()
 {
@@ -7,10 +8,10 @@ int main()
 
 	list.push_front(10);
 	list.push_front(20);
-	list.insert(200, 2);
-	list.insert(135, 2);
-	list.insert(-5, 2);
-	list.insert(25, 1);
+	list.insert(2, 200);
+	list.insert(2, 135);
+	list.insert(2, -5);
+	list.insert(1, 25);
 
 	for (int i = 0; i < list.size(); i++)
 		std::cout << list[i] << " ";

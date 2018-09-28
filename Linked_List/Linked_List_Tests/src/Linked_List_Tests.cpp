@@ -1,5 +1,6 @@
 #include "gtest\gtest.h"
 #include "Linked_List\src\LinkedList.h"
+#include "Linked_List\src\LinkedList.cpp"
 
 class SizeTest : public ::testing::Test {};
 
@@ -67,6 +68,29 @@ TEST_F(PushFrontTest, Front2) {
 	EXPECT_EQ(front, 45);
 }
 
+class SquareBrackets : public ::testing::Test {};
+
+TEST_F(SquareBrackets, EmptyList) {
+	LinkedList<int> list;
+
+	ASSERT_THROW(list[2], ListException);
+}
+
+TEST_F(SquareBrackets, NonEmptyList) {
+	LinkedList<int> list;
+
+	ASSERT_THROW(list[2], ListException);
+
+	list.push_front(10);
+	list.push_back(20);
+
+	ASSERT_THROW(list[-3], ListException);
+	ASSERT_THROW(list[2], ListException);
+
+	EXPECT_EQ(list[0], 10);
+	EXPECT_EQ(list[1], 20);
+}
+
 class PushBackTest : public ::testing::Test {};
 
 TEST_F(PushBackTest, PushEmpty) {
@@ -98,6 +122,12 @@ TEST_F(PushBackTest, PushNonEmpty) {
 }
 
 class PopFrontTest : public ::testing::Test {};
+
+TEST_F(PopFrontTest, PopFrontExceptions) {
+	LinkedList<int> list;
+
+	ASSERT_THROW(list.pop_front(), ListException);
+}
 
 TEST_F(PopFrontTest, Pop1) {
 	LinkedList<int> list;
@@ -132,6 +162,12 @@ TEST_F(PopFrontTest, Pop2) {
 }
 
 class PopBackTest : public ::testing::Test {};
+
+TEST_F(PopBackTest, PopBackExceptions) {
+	LinkedList<int> list;
+
+	ASSERT_THROW(list.pop_back(), ListException);
+}
 
 TEST_F(PopBackTest, Pop1) {
 	LinkedList<int> list;
@@ -183,6 +219,13 @@ TEST_F(ValueAtTest, Value012) {
 
 class InsertTest : public ::testing::Test {};
 
+TEST_F(InsertTest, InsertExceptions) {
+	LinkedList<int> list;
+
+	ASSERT_THROW(list.insert(2, 12), ListException);
+	ASSERT_THROW(list.insert(-1, 12), ListException);
+}
+
 TEST_F(InsertTest, InsertFrontEmpty) {
 	LinkedList<int> list;
 
@@ -229,6 +272,19 @@ TEST_F(InsertTest, InsertMid) {
 }
 
 class RemoveAtTest : public ::testing::Test {};
+
+TEST_F(RemoveAtTest, RemoveAtExceptions) {
+	LinkedList<int> list;
+	
+	ASSERT_THROW(list.remove_at(2), ListException);
+	
+	list.push_back(20);
+	list.push_front(13);
+
+	ASSERT_THROW(list.remove_at(-1), ListException);
+	ASSERT_THROW(list.remove_at(2), ListException);
+	ASSERT_THROW(list.remove_at(25), ListException);
+}
 
 TEST_F(RemoveAtTest, RemoveOnly) {
 	LinkedList<int> list;

@@ -6,6 +6,8 @@
 template<typename T>
 class LinkedList {
 public:
+	class Iterator;
+
 	LinkedList();
 	~LinkedList();
 
@@ -28,6 +30,38 @@ public:
 
 	T & operator[](const int index);
 
+	Iterator begin() { return Iterator(pHead); }
+	Iterator end() { return Iterator(nullptr); }
+
+public:
+	template <typename T>
+	class Node;
+
+	class Iterator {
+	private:
+		Node<T>* pCurrent;
+
+	public:
+		Iterator(Node<T>* pElement) : 
+			pCurrent(pElement) {}
+
+		Iterator& operator++ (int) { 
+			Iterator temp(*this);
+			pCurrent = pCurrent->pNext;
+			return temp;
+		}
+
+		Iterator& operator++ () {
+			pCurrent = pCurrent->pNext;
+			return *this;
+		}
+
+		bool operator== (const Iterator& other) { return pCurrent == other.pCurrent; }
+		bool operator!= (const Iterator& other) { return pCurrent != other.pCurrent; }
+
+		T& operator* () { return pCurrent->data; }
+	};
+
 private:
 	template<typename T>
 	class Node {
@@ -40,7 +74,7 @@ private:
 			this->pNext = pNext;
 		}
 	};
-
+	
 private:
 	Node<T>* pHead;
 	int Size;

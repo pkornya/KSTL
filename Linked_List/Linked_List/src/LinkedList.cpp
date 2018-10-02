@@ -1,39 +1,43 @@
-#include "LinkedList.h"
-#include "ListException.h"
+#pragma once
 
-template<typename T>
+#ifndef LISTEXCEPTION_CPP
+#define LISTEXCEPTION_CPP
+
+#include "LinkedList.h"
+
+template <typename T>
 LinkedList<T>::LinkedList()
 {
 	pHead = nullptr;
 	Size = 0;
 }
 
-template<typename T>
+template <typename T>
 LinkedList<T>::~LinkedList()
 {
 	clear();
 }
 
-template<typename T>
+template <typename T>
 void LinkedList<T>::push_back(T data)
 {
 	if (pHead == nullptr) {
-		pHead = new Node<T>(data, pHead);
+		pHead = new Node(data, pHead);
 		Size++;
 		return;
 	}
 
-	Node<T>* pTemp = pHead;
+	Node* pTemp = pHead;
 
 	while (pTemp->pNext != nullptr)
 		pTemp = pTemp->pNext;
 
-	pTemp->pNext = new Node<T>(data);
+	pTemp->pNext = new Node(data);
 
 	Size++;
 }
 
-template<typename T>
+template <typename T>
 T & LinkedList<T>::operator[](const int index)
 {
 	if (pHead == nullptr)
@@ -44,7 +48,7 @@ T & LinkedList<T>::operator[](const int index)
 		throw ListException("Out of range error!!!");
 	}
 
-	Node<T>* pTemp = pHead;
+	Node* pTemp = pHead;
 	int counter = 0;
 
 	while (pTemp != nullptr) {
@@ -56,14 +60,14 @@ T & LinkedList<T>::operator[](const int index)
 	}
 }
 
-template<typename T>
+template <typename T>
 void LinkedList<T>::push_front(T data)
 {
-	pHead = new Node<T>(data, pHead);
+	pHead = new Node(data, pHead);
 	Size++;
 }
 
-template<typename T>
+template <typename T>
 void LinkedList<T>::clear()
 {
 	while (Size) {
@@ -71,26 +75,26 @@ void LinkedList<T>::clear()
 	}
 }
 
-template<typename T>
+template <typename T>
 void LinkedList<T>::pop_front()
 {
 	if (pHead == nullptr)
 		throw ListException("List is empty. It`s impossible to pop a front element.");
 
-	Node<T>* pTemp = pHead;
+	Node* pTemp = pHead;
 	pHead = pHead->pNext;
 
 	delete pTemp;
 	Size--;
 }
 
-template<typename T>
+template <typename T>
 void LinkedList<T>::pop_back()
 {
 	remove_at(Size - 1);
 }
 
-template<typename T>
+template <typename T>
 void LinkedList<T>::insert(const int index, T data)
 {
 	if (index > Size || index < 0)
@@ -101,24 +105,24 @@ void LinkedList<T>::insert(const int index, T data)
 		return;
 	}
 
-	Node<T>* pPrevious = pHead;
+	Node* pPrevious = pHead;
 
 	for (int i = 0; i < index - 1; i++)
 		pPrevious = pPrevious->pNext;
 
-	Node<T>* pNode = new Node<T>(data, pPrevious->pNext);
+	Node* pNode = new Node(data, pPrevious->pNext);
 	pPrevious->pNext = pNode;
 
 	Size++;
 }
 
-template<typename T>
+template <typename T>
 bool LinkedList<T>::empty()
 {
 	return Size == 0 ? true : false;
 }
 
-template<typename T>
+template <typename T>
 void LinkedList<T>::remove_at(const int index)
 {
 	if (pHead == nullptr)
@@ -132,19 +136,19 @@ void LinkedList<T>::remove_at(const int index)
 		return;
 	}
 
-	Node<T>* pPrevious = pHead;
+	Node* pPrevious = pHead;
 
 	for (int i = 0; i < index - 1; i++)
 		pPrevious = pPrevious->pNext;
 
-	Node<T>* pDelete = pPrevious->pNext;
+	Node* pDelete = pPrevious->pNext;
 	pPrevious->pNext = pDelete->pNext;
 
 	delete pDelete;
 	Size--;
 }
 
-template<typename T>
+template <typename T>
 T LinkedList<T>::front()
 {
 	if (pHead == nullptr) {
@@ -154,14 +158,14 @@ T LinkedList<T>::front()
 	return pHead->data;
 }
 
-template<typename T>
+template <typename T>
 T LinkedList<T>::back()
 {
 	if (pHead == nullptr) {
 		throw ListException("List is empty. It`s impossible to get the last element.");
 	}
 
-	Node<T>* pTemp = pHead;
+	Node* pTemp = pHead;
 
 	while (pTemp->pNext != nullptr)
 		pTemp = pTemp->pNext;
@@ -169,16 +173,16 @@ T LinkedList<T>::back()
 	return pTemp->data;
 }
 
-template<typename T>
+template <typename T>
 T LinkedList<T>::value_at(const int index)
 {
 	return this->operator[](index);
 }
 
-template<typename T>
+template <typename T>
 void LinkedList<T>::remove_value(const int value)
 {
-	Node<T>* pTemp = pHead;
+	Node* pTemp = pHead;
 	int index = 0;
 
 	while (pTemp != nullptr) {
@@ -191,3 +195,12 @@ void LinkedList<T>::remove_value(const int value)
 		index++;
 	}
 }
+
+template<typename T>
+LinkedList<T>::Node::Node(T data, Node * pNext)
+{
+	this->data = data;
+	this->pNext = pNext;
+}
+
+#endif // !LISTEXCEPTION_CPP

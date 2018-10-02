@@ -1,6 +1,5 @@
 #include "gtest\gtest.h"
 #include "Linked_List\src\LinkedList.h"
-#include "Linked_List\src\LinkedList.cpp"
 
 class SizeTest : public ::testing::Test {};
 
@@ -383,4 +382,108 @@ TEST_F(RemoveValueTest, RemoveMid) {
 	EXPECT_EQ(list.size(), 2);
 	EXPECT_EQ(list.front(), 10);
 	EXPECT_EQ(list.back(), 45);
+}
+
+class IteratorTest : public ::testing::Test {};
+
+TEST_F(IteratorTest, BeginTest)
+{
+	LinkedList<char> list;
+
+	ASSERT_TRUE(list.begin() == nullptr);
+	ASSERT_TRUE(list.cbegin() == nullptr);
+
+	list.push_back('a');
+
+	ASSERT_FALSE(list.begin() == nullptr);
+	ASSERT_FALSE(list.cbegin() == nullptr);
+
+	auto it = list.begin();
+	auto const_it = list.begin();
+
+	EXPECT_EQ(*it, 'a');
+	EXPECT_EQ(*const_it, 'a');
+	
+	list.push_front('b');
+
+	it = list.begin();
+	const_it = list.begin();
+
+	EXPECT_EQ(*it, 'b');
+	EXPECT_EQ(*const_it, 'b');
+}
+
+TEST_F(IteratorTest, EndTest)
+{
+	LinkedList<char> list;
+
+	ASSERT_TRUE(list.end() == nullptr);
+
+	list.push_back(20);
+
+	ASSERT_TRUE(list.end() == nullptr);
+
+	list.push_front(23);
+
+	ASSERT_TRUE(list.end() == nullptr);
+}
+
+TEST_F(IteratorTest, EqualityTest)
+{
+	LinkedList<char> list;
+	auto begin_it = list.begin();
+	auto end_it = list.end();
+
+	ASSERT_TRUE(begin_it == nullptr);
+	ASSERT_TRUE(end_it == nullptr);
+	ASSERT_TRUE(begin_it == end_it);
+
+	list.push_back(20);
+
+	begin_it = list.begin();
+	end_it = list.end();
+
+	ASSERT_TRUE(begin_it != end_it);
+	ASSERT_FALSE(begin_it == nullptr);
+	ASSERT_TRUE(end_it == nullptr);
+}
+
+TEST_F(IteratorTest, PlusOperatorTest)
+{
+	LinkedList<int> list;
+
+	list.push_front(20);
+	list.push_front(10);
+	list.insert(2, 23);
+	list.push_back(5);
+	list.push_back(-5);
+
+	auto it = list.begin();
+	it++;
+	EXPECT_EQ(*it, 20);
+
+	it++;
+	EXPECT_EQ(*it, 23);
+
+	auto it2 = it++;
+	EXPECT_EQ(*it2, 23);
+	EXPECT_EQ(*it, 5);
+
+	it2 = ++it;
+	EXPECT_EQ(*it2, -5);
+	EXPECT_EQ(*it, -5);
+
+	it++;
+	EXPECT_TRUE(it == nullptr);
+}
+
+TEST_F(IteratorTest, IteratorExceptionsTest)
+{
+	LinkedList<int> list;
+
+	auto it = list.begin();
+
+	ASSERT_THROW(it++, ListException);
+	ASSERT_THROW(++it, ListException);
+	ASSERT_THROW(*it, ListException);
 }

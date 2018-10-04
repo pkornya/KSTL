@@ -3,7 +3,10 @@
 #ifndef LISTEXCEPTION_CPP
 #define LISTEXCEPTION_CPP
 
+#include "Node.h"
 #include "LinkedList.h"
+#include "ListException.h"
+#include "OwnOterator.h"
 
 template <typename T>
 LinkedList<T>::LinkedList()
@@ -22,17 +25,17 @@ template <typename T>
 void LinkedList<T>::push_back(T data)
 {
 	if (pHead == nullptr) {
-		pHead = new Node(data, pHead);
+		pHead = new Node<T>(data, pHead);
 		Size++;
 		return;
 	}
 
-	Node* pTemp = pHead;
+	Node<T>* pTemp = pHead;
 
 	while (pTemp->pNext != nullptr)
 		pTemp = pTemp->pNext;
 
-	pTemp->pNext = new Node(data);
+	pTemp->pNext = new Node<T>(data);
 
 	Size++;
 }
@@ -48,7 +51,7 @@ T & LinkedList<T>::operator[](const int index)
 		throw ListException("Out of range error!!!");
 	}
 
-	Node* pTemp = pHead;
+	Node<T>* pTemp = pHead;
 	int counter = 0;
 
 	while (pTemp != nullptr) {
@@ -63,7 +66,7 @@ T & LinkedList<T>::operator[](const int index)
 template <typename T>
 void LinkedList<T>::push_front(T data)
 {
-	pHead = new Node(data, pHead);
+	pHead = new Node<T>(data, pHead);
 	Size++;
 }
 
@@ -78,10 +81,10 @@ void LinkedList<T>::clear()
 template <typename T>
 void LinkedList<T>::pop_front()
 {
-	if (pHead == nullptr)
+	if (pHead == nullptr)	
 		throw ListException("List is empty. It`s impossible to pop a front element.");
 
-	Node* pTemp = pHead;
+	Node<T>* pTemp = pHead;
 	pHead = pHead->pNext;
 
 	delete pTemp;
@@ -105,12 +108,12 @@ void LinkedList<T>::insert(const int index, T data)
 		return;
 	}
 
-	Node* pPrevious = pHead;
+	Node<T>* pPrevious = pHead;
 
 	for (int i = 0; i < index - 1; i++)
 		pPrevious = pPrevious->pNext;
 
-	Node* pNode = new Node(data, pPrevious->pNext);
+	Node<T>* pNode = new Node<T>(data, pPrevious->pNext);
 	pPrevious->pNext = pNode;
 
 	Size++;
@@ -136,12 +139,12 @@ void LinkedList<T>::remove_at(const int index)
 		return;
 	}
 
-	Node* pPrevious = pHead;
+	Node<T>* pPrevious = pHead;
 
 	for (int i = 0; i < index - 1; i++)
 		pPrevious = pPrevious->pNext;
 
-	Node* pDelete = pPrevious->pNext;
+	Node<T>* pDelete = pPrevious->pNext;
 	pPrevious->pNext = pDelete->pNext;
 
 	delete pDelete;
@@ -165,7 +168,7 @@ T LinkedList<T>::back()
 		throw ListException("List is empty. It`s impossible to get the last element.");
 	}
 
-	Node* pTemp = pHead;
+	Node<T>* pTemp = pHead;
 
 	while (pTemp->pNext != nullptr)
 		pTemp = pTemp->pNext;
@@ -182,7 +185,7 @@ T LinkedList<T>::value_at(const int index)
 template <typename T>
 void LinkedList<T>::remove_value(const int value)
 {
-	Node* pTemp = pHead;
+	Node<T>* pTemp = pHead;
 	int index = 0;
 
 	while (pTemp != nullptr) {
@@ -194,13 +197,6 @@ void LinkedList<T>::remove_value(const int value)
 			pTemp = pTemp->pNext;
 		index++;
 	}
-}
-
-template<typename T>
-LinkedList<T>::Node::Node(T data, Node * pNext)
-{
-	this->data = data;
-	this->pNext = pNext;
 }
 
 #endif // !LISTEXCEPTION_CPP

@@ -21,12 +21,24 @@
     <ClCompile Include="src\LinkedList.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Node.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OwnIterator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\LinkedList.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\ListException.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Node.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OwnOterator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

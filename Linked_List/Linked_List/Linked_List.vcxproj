@@ -153,10 +153,14 @@
   <ItemGroup>
     <ClCompile Include="src\LinkedList.cpp" />
     <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\Node.cpp" />
+    <ClCompile Include="src\OwnIterator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ListException.h" />
     <ClInclude Include="src\LinkedList.h" />
+    <ClInclude Include="src\Node.h" />
+    <ClInclude Include="src\OwnOterator.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

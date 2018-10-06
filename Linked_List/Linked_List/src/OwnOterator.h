@@ -18,14 +18,14 @@ class OwnIterator : public std::iterator<std::forward_iterator_tag, T>
 
 public:
 	OwnIterator(Node<T>* pElement);
-	OwnIterator(const OwnIterator & another);
-	void operator=(const OwnIterator & another);
+	OwnIterator(const OwnIterator& another);
+	OwnIterator& operator=(const OwnIterator& another);
 
 	OwnIterator operator++ (int);
-	OwnIterator & operator++ ();
+	OwnIterator& operator++ ();
 
-	bool operator== (const OwnIterator& other);
-	bool operator!= (const OwnIterator& other);
+	bool operator== (const OwnIterator& another);
+	bool operator!= (const OwnIterator& another);
 
 	T & operator* ();
 

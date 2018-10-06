@@ -14,16 +14,17 @@ OwnIterator<T>::OwnIterator(Node<T>* pElement) :
 }
 
 template <typename T>
-OwnIterator<T>::OwnIterator(const OwnIterator & another) :
+OwnIterator<T>::OwnIterator(const OwnIterator& another) :
 	pCurrent(another.pCurrent)
 {
 	
 }
 
 template <typename T>
-void OwnIterator<T>::operator=(const OwnIterator & another)
+OwnIterator<T> & OwnIterator<T>::operator=(const OwnIterator& another)
 {
 	pCurrent = another.pCurrent;
+	return *this;
 }
 
 template <typename T>
@@ -44,6 +45,7 @@ OwnIterator<T> & OwnIterator<T>::operator++()
 	pCurrent = pCurrent->pNext;
 	return *this;
 }
+
 template <typename T>
 bool OwnIterator<T>::operator== (const OwnIterator& other)
 {
@@ -55,6 +57,7 @@ bool OwnIterator<T>::operator!= (const OwnIterator& other)
 {
 	return pCurrent != other.pCurrent;
 }
+
 template <typename T>
 T & OwnIterator<T>::operator* ()
 {

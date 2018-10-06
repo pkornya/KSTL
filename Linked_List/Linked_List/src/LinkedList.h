@@ -3,6 +3,8 @@
 #ifndef LINKEDLIST_H
 #define LINKEDLIST_H
 
+#include <initializer_list>
+
 template <typename T>
 class Node;
 
@@ -18,6 +20,9 @@ public:
 	//typedef OwnIterator<const T> const_iterator;
 
 	LinkedList();
+	LinkedList(std::initializer_list<T> init_list);
+	LinkedList(const LinkedList& another);
+	LinkedList& operator=(const LinkedList& another);
 	~LinkedList();
 
 	void push_back(T data);

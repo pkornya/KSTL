@@ -9,10 +9,49 @@
 #include "OwnOterator.h"
 
 template <typename T>
-LinkedList<T>::LinkedList()
+LinkedList<T>::LinkedList() :
+	pHead(nullptr), Size(0)
 {
-	pHead = nullptr;
-	Size = 0;
+	
+}
+
+template<typename T>
+LinkedList<T>::LinkedList(const LinkedList & another) :
+	pHead(nullptr), Size(0)
+{
+	Node<T>* pTempAnother = another.pHead;
+
+	while (pTempAnother != nullptr) {
+		push_back(pTempAnother->data);
+		pTempAnother = pTempAnother->pNext;
+	}
+}
+
+template<typename T>
+LinkedList<T>::LinkedList(std::initializer_list<T> init_list) :
+	pHead(nullptr), Size(0)
+{
+	if (init_list.size() == 0)
+		return;
+
+	for (auto it = init_list.begin(); it != init_list.end(); ++it) {
+		push_back(*it);
+	}
+}
+
+template<typename T>
+LinkedList<T> & LinkedList<T>::operator=(const LinkedList & another)
+{
+	this->clear();
+
+	Node<T>* pTempAnother = another.pHead;
+
+	while (pTempAnother != nullptr) {
+		push_back(pTempAnother->data);
+		pTempAnother = pTempAnother->pNext;
+	}
+
+	return *this;
 }
 
 template <typename T>
@@ -44,7 +83,7 @@ template <typename T>
 T & LinkedList<T>::operator[](const int index)
 {
 	if (pHead == nullptr)
-		throw ListException("List is empty. It`s impossible get an element.");
+		throw ListException("List is empty. It`s impossible to get an element.");
 
 
 	if (index >= Size || index < 0) {
@@ -76,6 +115,9 @@ void LinkedList<T>::clear()
 	while (Size) {
 		pop_front();
 	}
+
+	pHead = nullptr;
+	Size = 0;
 }
 
 template <typename T>

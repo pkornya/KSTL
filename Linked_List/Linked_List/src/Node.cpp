@@ -6,7 +6,7 @@
 #include "Node.h"
 
 template<typename T>
-Node<T>::Node(T data, Node<T>* pNext)
+Node<T>::Node(T data = T(), Node<T>* pNext = nullptr)
 {
 	this->data = data;
 	this->pNext = pNext;

@@ -7,19 +7,19 @@ template <typename T>
 class LinkedList;
 
 template <typename T>
-class OwnIterator;
+class Iterator;
 
 template <typename T>
 class Node
 {
 	friend class LinkedList<T>;
-	friend class OwnIterator<T>;
+	friend class Iterator<T>;
 
 public:
 	Node(T data = T(), Node<T>* pNext = nullptr);
 	
 private:
-	T data;
+	T		 data;
 	Node<T>* pNext;
 };
 

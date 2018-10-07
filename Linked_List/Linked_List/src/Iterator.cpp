@@ -3,42 +3,35 @@
 #ifndef OWNITERATOR_CPP
 #define OWNITERATOR_CPP
 
-#include "OwnOterator.h"
+#include "Iterator.h"
 #include "ListException.h"
 
 template <typename T>
-OwnIterator<T>::OwnIterator(Node<T>* pElement) :
+Iterator<T>::Iterator() :
+	pCurrent(nullptr) 
+{
+
+}
+
+template <typename T>
+Iterator<T>::Iterator(Node<T>* pElement) :
 	pCurrent(pElement)
 {
 
 }
 
 template <typename T>
-OwnIterator<T>::OwnIterator(const OwnIterator& another) :
-	pCurrent(another.pCurrent)
-{
-	
-}
-
-template <typename T>
-OwnIterator<T> & OwnIterator<T>::operator=(const OwnIterator& another)
-{
-	pCurrent = another.pCurrent;
-	return *this;
-}
-
-template <typename T>
-OwnIterator<T> OwnIterator<T>::operator++(int)
+Iterator<T> Iterator<T>::operator++(int)
 {
 	if (pCurrent == nullptr)
 		throw ListException("It`s impossible to increment an iterator");
-	OwnIterator temp(*this);
+	Iterator temp(*this);
 	++(*this);
 	return temp;
 }
 
 template <typename T>
-OwnIterator<T> & OwnIterator<T>::operator++()
+Iterator<T> & Iterator<T>::operator++()
 {
 	if (pCurrent == nullptr)
 		throw ListException("It`s impossible to increment an iterator");
@@ -47,23 +40,31 @@ OwnIterator<T> & OwnIterator<T>::operator++()
 }
 
 template <typename T>
-bool OwnIterator<T>::operator== (const OwnIterator& other)
+bool Iterator<T>::operator== (const Iterator& other) const
 {
 	return pCurrent == other.pCurrent;
 }
 
 template <typename T>
-bool OwnIterator<T>::operator!= (const OwnIterator& other)
+bool Iterator<T>::operator!= (const Iterator& other) const
 {
 	return pCurrent != other.pCurrent;
 }
 
 template <typename T>
-T & OwnIterator<T>::operator* ()
+T & Iterator<T>::operator* () const
 {
 	if (pCurrent == nullptr)
 		throw ListException("It`s impossible to dereference an iterator");
 	return pCurrent->data;
+}
+
+template<typename T>
+T* Iterator<T>::operator->() const
+{
+	if (pCurrent == nullptr)
+		throw ListException("It`s impossible to dereference an iterator");
+	return &pCurrent->data;
 }
 
 #endif // !OWNITERATOR_CPP

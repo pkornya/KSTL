@@ -24,7 +24,7 @@
     <ClCompile Include="src\Node.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\OwnIterator.cpp">
+    <ClCompile Include="src\Iterator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -38,7 +38,7 @@
     <ClInclude Include="src\Node.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\OwnOterator.h">
+    <ClInclude Include="src\Iterator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

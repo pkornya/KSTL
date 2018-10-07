@@ -6,7 +6,7 @@
 #include "Node.h"
 #include "LinkedList.h"
 #include "ListException.h"
-#include "OwnOterator.h"
+#include "Iterator.h"
 
 template <typename T>
 LinkedList<T>::LinkedList() :

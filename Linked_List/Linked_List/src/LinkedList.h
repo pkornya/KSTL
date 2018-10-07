@@ -9,21 +9,21 @@ template <typename T>
 class Node;
 
 template <typename T>
-class OwnIterator;
+class Iterator;
 
 template <typename T>
 class LinkedList 
 {
 public:
-
-	typedef OwnIterator<T> iterator;
-	//typedef OwnIterator<const T> const_iterator;
+	typedef Iterator<T> iterator;
 
 	LinkedList();
 	LinkedList(std::initializer_list<T> init_list);
 	LinkedList(const LinkedList& another);
-	LinkedList& operator=(const LinkedList& another);
 	~LinkedList();
+
+	LinkedList& operator=(const LinkedList& another);
+	T&			operator[](const int index);
 
 	void push_back(T data);
 	void push_front(T data);
@@ -39,20 +39,15 @@ public:
 	T value_at(const int index);
 
 	bool empty();
-	int size() const { return Size; }
+	int  size() const { return Size; }
 	void clear();
-
-	T & operator[](const int index);
 
 	iterator begin() { return iterator(pHead); }
 	iterator end() { return iterator(nullptr); }
-
-	//const_iterator cbegin() const { return const_iterator(pHead); }
-	//const_iterator cend() const { return const_iterator(nullptr); }
 	
 private:
-	Node<T>* pHead;
-	int Size;
+	Node<T>*	pHead;
+	int			Size;
 };
 
 #include "LinkedList.cpp"

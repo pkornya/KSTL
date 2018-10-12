@@ -1,6 +1,114 @@
+#include <stdio.h>
+
 #include "gtest\gtest.h"
-#include "Linked_List\src\LinkedList.h"
-#include "Linked_List\src\Iterator.h"
+#include "..\include\LinkedList.h"
+
+using namespace pkl;
+
+GTEST_API_ int main(int argc, char **argv) {
+	printf("Running main() from %s\n", __FILE__);
+	testing::InitGoogleTest(&argc, argv);
+	return RUN_ALL_TESTS();
+}
+
+class ConstructorsTest : public ::testing::Test {};
+
+TEST_F(ConstructorsTest, DefaultConstructor) {
+	LinkedList<int> list;
+
+	EXPECT_TRUE(list.empty());
+	EXPECT_EQ(list.begin(), nullptr);
+	EXPECT_EQ(list.size(), 0);
+	EXPECT_EQ(list.begin(), list.end());
+}
+
+TEST_F(ConstructorsTest, InitializerList) {
+	LinkedList<int> list = { 1, 2, 3, 4, 5 };
+
+	EXPECT_EQ(list.size(), 5);
+	EXPECT_EQ(list.front(), 1);
+	EXPECT_EQ(list.back(), 5);
+
+	list = { 10, 20, 30, 40, 50 };
+
+	EXPECT_EQ(list.size(), 5);
+	EXPECT_EQ(list.front(), 10);
+	EXPECT_EQ(list.back(), 50);
+}
+
+TEST_F(ConstructorsTest, FillConstructor) {
+	LinkedList<int> list(2, 10);
+
+	EXPECT_EQ(list.size(), 2);
+	EXPECT_EQ(list.front(), 10);
+	EXPECT_EQ(list.back(), 10);
+}
+
+TEST_F(ConstructorsTest, CopyConstructor) {
+	LinkedList<int> list = { 1, 2, 3, 4 };
+
+	LinkedList<int> testList(list);
+
+	ASSERT_NE(list.begin(), testList.begin());
+
+	EXPECT_EQ(testList.size(), 4);
+	EXPECT_EQ(testList.front(), 1);
+	EXPECT_EQ(testList.back(), 4);
+	EXPECT_EQ(testList[1], 2);
+	EXPECT_EQ(testList[2], 3);
+}
+
+TEST_F(ConstructorsTest, MoveConstructor) {
+	LinkedList<int> list1 = { 1, 2, 3, 4 };
+
+	LinkedList<int> testList(std::move(list1));
+
+	ASSERT_EQ(list1.begin(), nullptr);
+	ASSERT_EQ(list1.size(), 0);
+	ASSERT_NE(list1.begin(), testList.begin());
+
+	EXPECT_EQ(testList.size(), 4);
+	EXPECT_EQ(testList.front(), 1);
+	EXPECT_EQ(testList.back(), 4);
+	EXPECT_EQ(testList[1], 2);
+	EXPECT_EQ(testList[2], 3);
+}
+
+class AssignmentOperatorTest : public ::testing::Test {};
+
+TEST_F(AssignmentOperatorTest, AssignmentOperator) {
+	LinkedList<int> list = { 1, 2, 3, 4 };
+
+	LinkedList<int> testList = { 5, 6, 7 };
+
+	testList = list;
+
+	ASSERT_NE(list.begin(), testList.begin());
+
+	EXPECT_EQ(testList.size(), 4);
+	EXPECT_EQ(testList.front(), 1);
+	EXPECT_EQ(testList.back(), 4);
+	EXPECT_EQ(testList[1], 2);
+	EXPECT_EQ(testList[2], 3);
+}
+
+TEST_F(AssignmentOperatorTest, MoveAssignmentOperator) {
+	LinkedList<int> list = { 1, 2, 3, 4 };
+
+	LinkedList<int> testList = { 5, 6, 7 };
+
+	testList = std::move(list);
+
+	ASSERT_NE(list.begin(), testList.begin());
+	ASSERT_EQ(list.begin(), nullptr);
+	ASSERT_EQ(list.size(), 0);
+
+	EXPECT_EQ(testList.size(), 4);
+	EXPECT_EQ(testList.front(), 1);
+	EXPECT_EQ(testList.back(), 4);
+	EXPECT_EQ(testList[1], 2);
+	EXPECT_EQ(testList[2], 3);
+}
 
 class SizeTest : public ::testing::Test {};
 

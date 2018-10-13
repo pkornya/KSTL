@@ -1,20 +1,18 @@
 #include <stdio.h>
 
 #include "gtest\gtest.h"
-#include "..\include\LinkedList.h"
+#include "..\include\forward_list.h"
 
 using namespace pkl;
 
-GTEST_API_ int main(int argc, char **argv) {
-	printf("Running main() from %s\n", __FILE__);
-	testing::InitGoogleTest(&argc, argv);
-	return RUN_ALL_TESTS();
-}
+//#define TESTFORWARDLIST
+
+#ifdef TESTFORWARDLIST
 
 class ConstructorsTest : public ::testing::Test {};
 
 TEST_F(ConstructorsTest, DefaultConstructor) {
-	LinkedList<int> list;
+	forward_list<int> list;
 
 	EXPECT_TRUE(list.empty());
 	EXPECT_EQ(list.begin(), nullptr);
@@ -23,7 +21,7 @@ TEST_F(ConstructorsTest, DefaultConstructor) {
 }
 
 TEST_F(ConstructorsTest, InitializerList) {
-	LinkedList<int> list = { 1, 2, 3, 4, 5 };
+	forward_list<int> list = { 1, 2, 3, 4, 5 };
 
 	EXPECT_EQ(list.size(), 5);
 	EXPECT_EQ(list.front(), 1);
@@ -37,7 +35,7 @@ TEST_F(ConstructorsTest, InitializerList) {
 }
 
 TEST_F(ConstructorsTest, FillConstructor) {
-	LinkedList<int> list(2, 10);
+	forward_list<int> list(2, 10);
 
 	EXPECT_EQ(list.size(), 2);
 	EXPECT_EQ(list.front(), 10);
@@ -45,9 +43,9 @@ TEST_F(ConstructorsTest, FillConstructor) {
 }
 
 TEST_F(ConstructorsTest, CopyConstructor) {
-	LinkedList<int> list = { 1, 2, 3, 4 };
+	forward_list<int> list = { 1, 2, 3, 4 };
 
-	LinkedList<int> testList(list);
+	forward_list<int> testList(list);
 
 	ASSERT_NE(list.begin(), testList.begin());
 
@@ -59,9 +57,9 @@ TEST_F(ConstructorsTest, CopyConstructor) {
 }
 
 TEST_F(ConstructorsTest, MoveConstructor) {
-	LinkedList<int> list1 = { 1, 2, 3, 4 };
+	forward_list<int> list1 = { 1, 2, 3, 4 };
 
-	LinkedList<int> testList(std::move(list1));
+	forward_list<int> testList(std::move(list1));
 
 	ASSERT_EQ(list1.begin(), nullptr);
 	ASSERT_EQ(list1.size(), 0);
@@ -77,9 +75,9 @@ TEST_F(ConstructorsTest, MoveConstructor) {
 class AssignmentOperatorTest : public ::testing::Test {};
 
 TEST_F(AssignmentOperatorTest, AssignmentOperator) {
-	LinkedList<int> list = { 1, 2, 3, 4 };
+	forward_list<int> list = { 1, 2, 3, 4 };
 
-	LinkedList<int> testList = { 5, 6, 7 };
+	forward_list<int> testList = { 5, 6, 7 };
 
 	testList = list;
 
@@ -93,9 +91,9 @@ TEST_F(AssignmentOperatorTest, AssignmentOperator) {
 }
 
 TEST_F(AssignmentOperatorTest, MoveAssignmentOperator) {
-	LinkedList<int> list = { 1, 2, 3, 4 };
+	forward_list<int> list = { 1, 2, 3, 4 };
 
-	LinkedList<int> testList = { 5, 6, 7 };
+	forward_list<int> testList = { 5, 6, 7 };
 
 	testList = std::move(list);
 
@@ -113,14 +111,14 @@ TEST_F(AssignmentOperatorTest, MoveAssignmentOperator) {
 class SizeTest : public ::testing::Test {};
 
 TEST_F(SizeTest, SizeEmpty) {
-	LinkedList<int> list;
+	forward_list<int> list;
 	int size = list.size();
 
 	EXPECT_EQ(size, 0);
 }
 
 TEST_F(SizeTest, Size1to2) {
-	LinkedList<int> list;
+	forward_list<int> list;
 	list.push_front(4);
 
 	EXPECT_EQ(list.size(), 1);
@@ -130,7 +128,7 @@ TEST_F(SizeTest, Size1to2) {
 }
 
 TEST_F(SizeTest, Size3) {
-	LinkedList<int> list;
+	forward_list<int> list;
 
 	list.push_front(4);
 	list.push_front(9);
@@ -142,7 +140,7 @@ TEST_F(SizeTest, Size3) {
 class EmptyTest : public ::testing::Test {};
 
 TEST_F(EmptyTest, Empty) {
-	LinkedList<std::string> list;
+	forward_list<std::string> list;
 
 	EXPECT_TRUE(list.empty());
 	list.push_front("word");
@@ -153,7 +151,7 @@ TEST_F(EmptyTest, Empty) {
 class PushFrontTest : public ::testing::Test {};
 
 TEST_F(PushFrontTest, Front1) {
-	LinkedList<int> list;
+	forward_list<int> list;
 
 	list.push_front(123);
 	int front = list.front();
@@ -163,7 +161,7 @@ TEST_F(PushFrontTest, Front1) {
 }
 
 TEST_F(PushFrontTest, Front2) {
-	LinkedList<int> list;
+	forward_list<int> list;
 
 	list.push_front(123);
 	list.push_front(456);
@@ -179,13 +177,13 @@ TEST_F(PushFrontTest, Front2) {
 class SquareBrackets : public ::testing::Test {};
 
 TEST_F(SquareBrackets, EmptyList) {
-	LinkedList<int> list;
+	forward_list<int> list;
 
 	ASSERT_THROW(list[2], ListException);
 }
 
 TEST_F(SquareBrackets, NonEmptyList) {
-	LinkedList<int> list;
+	forward_list<int> list;
 
 	ASSERT_THROW(list[2], ListException);
 
@@ -202,7 +200,7 @@ TEST_F(SquareBrackets, NonEmptyList) {
 class PushBackTest : public ::testing::Test {};
 
 TEST_F(PushBackTest, PushEmpty) {
-	LinkedList<int> list;
+	forward_list<int> list;
 
 	list.push_back(4);
 
@@ -213,7 +211,7 @@ TEST_F(PushBackTest, PushEmpty) {
 }
 
 TEST_F(PushBackTest, PushNonEmpty) {
-	LinkedList<int> list;
+	forward_list<int> list;
 
 	list.push_front(-78);
 	list.push_back(123);
@@ -232,13 +230,13 @@ TEST_F(PushBackTest, PushNonEmpty) {
 class PopFrontTest : public ::testing::Test {};
 
 TEST_F(PopFrontTest, PopFrontExceptions) {
-	LinkedList<int> list;
+	forward_list<int> list;
 
 	ASSERT_THROW(list.pop_front(), ListException);
 }
 
 TEST_F(PopFrontTest, Pop1) {
-	LinkedList<int> list;
+	forward_list<int> list;
 
 	list.push_front(66);
 	int front = list.front();
@@ -251,7 +249,7 @@ TEST_F(PopFrontTest, Pop1) {
 }
 
 TEST_F(PopFrontTest, Pop2) {
-	LinkedList<int> list;
+	forward_list<int> list;
 
 	list.push_front(12);
 	list.push_front(11);
@@ -272,13 +270,13 @@ TEST_F(PopFrontTest, Pop2) {
 class PopBackTest : public ::testing::Test {};
 
 TEST_F(PopBackTest, PopBackExceptions) {
-	LinkedList<int> list;
+	forward_list<int> list;
 
 	ASSERT_THROW(list.pop_back(), ListException);
 }
 
 TEST_F(PopBackTest, Pop1) {
-	LinkedList<int> list;
+	forward_list<int> list;
 
 	list.push_back(4);
 
@@ -290,7 +288,7 @@ TEST_F(PopBackTest, Pop1) {
 }
 
 TEST_F(PopBackTest, Pop2) {
-	LinkedList<int> list;
+	forward_list<int> list;
 
 	list.push_back(33);
 	list.push_front(13);
@@ -313,7 +311,7 @@ TEST_F(PopBackTest, Pop2) {
 class ValueAtTest : public ::testing::Test {};
 
 TEST_F(ValueAtTest, Value012) {
-	LinkedList<int> list;
+	forward_list<int> list;
 
 	list.push_front(99);
 	EXPECT_EQ(list.value_at(0), 99);
@@ -328,14 +326,14 @@ TEST_F(ValueAtTest, Value012) {
 class InsertTest : public ::testing::Test {};
 
 TEST_F(InsertTest, InsertExceptions) {
-	LinkedList<int> list;
+	forward_list<int> list;
 
 	ASSERT_THROW(list.insert(2, 12), ListException);
 	ASSERT_THROW(list.insert(-1, 12), ListException);
 }
 
 TEST_F(InsertTest, InsertFrontEmpty) {
-	LinkedList<int> list;
+	forward_list<int> list;
 
 	list.insert(0, 3);
 
@@ -344,7 +342,7 @@ TEST_F(InsertTest, InsertFrontEmpty) {
 }
 
 TEST_F(InsertTest, InsertFrontNonEmpty) {
-	LinkedList<int> list;
+	forward_list<int> list;
 
 	list.push_front(123);
 	list.insert(0, 3);
@@ -355,7 +353,7 @@ TEST_F(InsertTest, InsertFrontNonEmpty) {
 }
 
 TEST_F(InsertTest, InsertBack) {
-	LinkedList<int> list{};
+	forward_list<int> list{};
 
 	list.push_back(123);
 	list.insert(1, 3);
@@ -365,7 +363,7 @@ TEST_F(InsertTest, InsertBack) {
 }
 
 TEST_F(InsertTest, InsertMid) {
-	LinkedList<int> list;
+	forward_list<int> list;
 
 	list.push_back(123);
 	list.push_back(456);
@@ -382,7 +380,7 @@ TEST_F(InsertTest, InsertMid) {
 class RemoveAtTest : public ::testing::Test {};
 
 TEST_F(RemoveAtTest, RemoveAtExceptions) {
-	LinkedList<int> list;
+	forward_list<int> list;
 	
 	ASSERT_THROW(list.remove_at(2), ListException);
 	
@@ -395,7 +393,7 @@ TEST_F(RemoveAtTest, RemoveAtExceptions) {
 }
 
 TEST_F(RemoveAtTest, RemoveOnly) {
-	LinkedList<int> list;
+	forward_list<int> list;
 
 	list.push_back(44);
 	list.remove_at(0);
@@ -404,7 +402,7 @@ TEST_F(RemoveAtTest, RemoveOnly) {
 }
 
 TEST_F(RemoveAtTest, RemoveFirst) {
-	LinkedList<int> list;
+	forward_list<int> list;
 
 	list.push_back(44);
 	list.push_back(55);
@@ -415,7 +413,7 @@ TEST_F(RemoveAtTest, RemoveFirst) {
 }
 
 TEST_F(RemoveAtTest, RemoveLast) {
-	LinkedList<int> list;
+	forward_list<int> list;
 
 	list.push_back(44);
 	list.push_back(55);
@@ -426,7 +424,7 @@ TEST_F(RemoveAtTest, RemoveLast) {
 }
 
 TEST_F(RemoveAtTest, RemoveMid) {
-	LinkedList<int> list;
+	forward_list<int> list;
 
 	list.push_back(44);
 	list.push_back(55);
@@ -441,7 +439,7 @@ TEST_F(RemoveAtTest, RemoveMid) {
 class RemoveValueTest : public ::testing::Test {};
 
 TEST_F(RemoveValueTest, RemoveNone) {
-	LinkedList<int> list;
+	forward_list<int> list;
 
 	list.remove_value(5);
 
@@ -449,7 +447,7 @@ TEST_F(RemoveValueTest, RemoveNone) {
 }
 
 TEST_F(RemoveValueTest, RemoveOnly) {
-	LinkedList<int> list;
+	forward_list<int> list;
 
 	list.push_back(5);
 	list.remove_value(5);
@@ -458,7 +456,7 @@ TEST_F(RemoveValueTest, RemoveOnly) {
 }
 
 TEST_F(RemoveValueTest, RemoveFirst) {
-	LinkedList<int> list;
+	forward_list<int> list;
 
 	list.push_back(5);
 	list.push_back(22);
@@ -469,7 +467,7 @@ TEST_F(RemoveValueTest, RemoveFirst) {
 }
 
 TEST_F(RemoveValueTest, RemoveLast) {
-	LinkedList<int> list;
+	forward_list<int> list;
 
 	list.push_back(10);
 	list.push_back(20);
@@ -480,7 +478,7 @@ TEST_F(RemoveValueTest, RemoveLast) {
 }
 
 TEST_F(RemoveValueTest, RemoveMid) {
-	LinkedList<int> list;
+	forward_list<int> list;
 
 	list.push_back(10);
 	list.push_back(25);
@@ -497,7 +495,7 @@ class IteratorTest : public ::testing::Test {};
 
 TEST_F(IteratorTest, BeginTest)
 {
-	LinkedList<char> list;
+	forward_list<char> list;
 
 	ASSERT_TRUE(list.begin() == nullptr);
 
@@ -522,7 +520,7 @@ TEST_F(IteratorTest, BeginTest)
 
 TEST_F(IteratorTest, EndTest)
 {
-	LinkedList<char> list;
+	forward_list<char> list;
 
 	ASSERT_TRUE(list.end() == nullptr);
 
@@ -537,7 +535,7 @@ TEST_F(IteratorTest, EndTest)
 
 TEST_F(IteratorTest, EqualityTest)
 {
-	LinkedList<char> list;
+	forward_list<char> list;
 	auto begin_it = list.begin();
 	auto end_it = list.end();
 
@@ -557,7 +555,7 @@ TEST_F(IteratorTest, EqualityTest)
 
 TEST_F(IteratorTest, PlusOperatorTest)
 {
-	LinkedList<int> list;
+	forward_list<int> list;
 
 	list.push_front(20);
 	list.push_front(10);
@@ -586,7 +584,7 @@ TEST_F(IteratorTest, PlusOperatorTest)
 
 TEST_F(IteratorTest, IteratorExceptionsTest)
 {
-	LinkedList<int> list;
+	forward_list<int> list;
 
 	auto it = list.begin();
 
@@ -594,3 +592,5 @@ TEST_F(IteratorTest, IteratorExceptionsTest)
 	ASSERT_THROW(++it, ListException);
 	ASSERT_THROW(*it, ListException);
 }
+
+#endif // TESTFORWARDLIST

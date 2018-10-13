@@ -1,23 +1,15 @@
 #pragma once
 
-#ifndef LINKEDLIST_H
-#define LINKEDLIST_H
+#ifndef FORWARD_LIST_H
+#define FORWARD_LIST_H
 
 #include <initializer_list>
 #include <exception>
-//#include <iterator>
-
-
-
-
-///////////// Node /////////////
-// 
 
 namespace pkl
 {
-
-
-
+    ///////////// Node /////////////
+    // 
 
 	template <typename T>
 	struct Node
@@ -51,11 +43,11 @@ namespace pkl
 	template <typename T, typename Pointer, typename Reference>
 	struct Iterator //: public std::iterator<std::forward_iterator_tag, T>
 	{
-		typedef Iterator<T, Pointer, Reference>		this_type;
-		typedef Iterator<T, T*, T&>					iterator;
-		typedef Iterator<T, const T*, const T&>		const_iterator;
-		typedef T									value_type;
-		typedef Node<T>								node_type;
+		typedef Iterator<T, Pointer, Reference>     this_type;
+		typedef Iterator<T, T*, T&>                 iterator;
+		typedef Iterator<T, const T*, const T&>     const_iterator;
+		typedef T                                   value_type;
+		typedef Node<T>                             node_type;
 		typedef Pointer                             pointer;
 		typedef Reference                           reference;
 
@@ -81,37 +73,37 @@ namespace pkl
 
 
 
-	///////////// LinkedList /////////////
+	///////////// forward_list /////////////
 	// 
 
 	template <typename T>
-	class LinkedList
+	class forward_list
 	{
-		typedef LinkedList<T>	this_type;
+		typedef forward_list<T>	                    this_type;
 
 	public:
-		typedef T									value_type;
-		typedef T*									pointer;
-		typedef const T*							const_pointer;
-		typedef T&									reference;
-		typedef const T&							const_reference;
-		typedef Node<T>								node_type;
-		typedef Iterator<T, T*, T&>					iterator;
-		typedef Iterator<T, const T*, const T&>		const_iterator;
+		typedef T                                   value_type;
+		typedef T*                                  pointer;
+		typedef const T*                            const_pointer;
+		typedef T&                                  reference;
+		typedef const T&                            const_reference;
+		typedef Node<T>                             node_type;
+		typedef Iterator<T, T*, T&>                 iterator;
+		typedef Iterator<T, const T*, const T&>     const_iterator;
 
 	public:
-		LinkedList();
-		LinkedList(std::initializer_list<value_type> init_list);
-		explicit LinkedList(size_t quantity, value_type value);
+		forward_list();
+		forward_list(std::initializer_list<value_type> init_list);
+		explicit forward_list(size_t quantity, value_type value);
 
-		LinkedList(const this_type & another);
-		LinkedList(this_type && another);
+		forward_list(const this_type & another);
+		forward_list(this_type && another);
 
 		this_type& operator=(const this_type& another);
 		this_type& operator=(this_type&& another);
 		this_type& operator=(std::initializer_list<value_type> init_list);
 
-		~LinkedList();
+		~forward_list();
 
 		void swap(this_type& another);
 
@@ -124,30 +116,30 @@ namespace pkl
 		void remove_at(const size_t index);
 		void remove_value(const size_t value);
 
-		reference		back();
+		reference       back();
 		const_reference back() const;
 
-		reference		front();
+		reference       front();
 		const_reference front() const;
 
 		reference value_at(const size_t index);
 		reference operator[](const size_t index);
 
-		bool empty() const;
-		size_t  size() const;
-		void clear();
+		bool    empty() const;
+		size_t  size() 	const;
+		void    clear();
 
-		iterator begin();
-		const_iterator begin() const;
-		const_iterator cbegin() const;
+		iterator        begin();
+		const_iterator  begin() const;
+		const_iterator  cbegin() const;
 
-		iterator end();
-		const_iterator end() const;
-		const_iterator cend() const;
+		iterator        end();
+		const_iterator  end() const;
+		const_iterator  cend() const;
 
 	private:
-		node_type*	pHead;
-		size_t		mSize;
+		node_type*  pHead;
+		size_t      mSize;
 	};
 
 
@@ -237,19 +229,19 @@ namespace pkl
 
 
 
-	///////////// LinkedList /////////////
+	///////////// forward_list /////////////
 	//
 
 	template <typename T>
-	LinkedList<T>::LinkedList() :
+	forward_list<T>::forward_list() :
 		pHead(nullptr), mSize(0)
 	{
 
 	}
 
 	template<typename T>
-	LinkedList<T>::LinkedList(size_t quantity, value_type value) :
-		pHead(nullptr), mSize(0)
+    forward_list<T>::forward_list(size_t quantity, value_type value) : 
+        forward_list()
 	{
 		while (quantity) {
 			push_front(value);
@@ -258,8 +250,8 @@ namespace pkl
 	}
 
 	template<typename T>
-	LinkedList<T>::LinkedList(const this_type& another) :
-		pHead(nullptr), mSize(0)
+	forward_list<T>::forward_list(const this_type& another) : 
+        forward_list()
 	{
 		node_type* pTempAnother = another.pHead;
 		node_type* pTemp;
@@ -280,21 +272,21 @@ namespace pkl
 	}
 
 	template<typename T>
-	LinkedList<T>::LinkedList(this_type&& another) :
-		pHead(nullptr), mSize(0)
+	forward_list<T>::forward_list(this_type&& another) : 
+        forward_list()
 	{
 		swap(another);
 	}
 
 	template<typename T>
-	void LinkedList<T>::swap(this_type& another)
+	void forward_list<T>::swap(this_type& another)
 	{
 		std::swap(pHead, another.pHead);
 		std::swap(mSize, another.mSize);
 	}
 
 	template<typename T>
-	LinkedList<T>::LinkedList(std::initializer_list<T> init_list) :
+	forward_list<T>::forward_list(std::initializer_list<T> init_list) :
 		pHead(nullptr), mSize(0)
 	{
 		node_type* pTemp;
@@ -313,20 +305,19 @@ namespace pkl
 	}
 
 	template<typename T>
-	typename LinkedList<T>::this_type&
-		LinkedList<T>::operator=(const this_type& another)
+	typename forward_list<T>::this_type&
+	forward_list<T>::operator=(const this_type& another)
 	{
-
 		if (this != &another) {
 			clear();
-			this_type(another).swap(*this); // 1. LinkedList temp(another); 2. temp.swap(*this); 
+			this_type(another).swap(*this); // 1. LinkedList<T> temp(another); 2. temp.swap(*this); 
 		}
 		return *this;
 	}
 
 	template<typename T>
-	typename LinkedList<T>::this_type&
-		LinkedList<T>::operator=(this_type&& another)
+	typename forward_list<T>::this_type&
+	forward_list<T>::operator=(this_type&& another)
 	{
 		if (this != &another) {
 			clear();
@@ -336,8 +327,8 @@ namespace pkl
 	}
 
 	template<typename T>
-	typename LinkedList<T>::this_type&
-		LinkedList<T>::operator=(std::initializer_list<value_type> init_list)
+	typename forward_list<T>::this_type&
+		forward_list<T>::operator=(std::initializer_list<value_type> init_list)
 	{
 		clear();
 
@@ -359,13 +350,13 @@ namespace pkl
 	}
 
 	template <typename T>
-	LinkedList<T>::~LinkedList()
+	forward_list<T>::~forward_list()
 	{
 		clear();
 	}
 
 	template <typename T>
-	void LinkedList<T>::push_back(value_type data)
+	void forward_list<T>::push_back(value_type data)
 	{
 		if (pHead == nullptr) {
 			pHead = new node_type(data, pHead);
@@ -384,8 +375,8 @@ namespace pkl
 	}
 
 	template <typename T>
-	typename LinkedList<T>::reference
-		LinkedList<T>::operator[](const size_t index)
+	typename forward_list<T>::reference
+	forward_list<T>::operator[](const size_t index)
 	{
 		if (pHead == nullptr)
 			throw ListException("List is empty. It`s impossible to get an element.");
@@ -408,14 +399,14 @@ namespace pkl
 	}
 
 	template <typename T>
-	void LinkedList<T>::push_front(value_type data)
+	void forward_list<T>::push_front(value_type data)
 	{
 		pHead = new node_type(data, pHead);
 		mSize++;
 	}
 
 	template <typename T>
-	void LinkedList<T>::clear()
+	void forward_list<T>::clear()
 	{
 		while (mSize) {
 			pop_front();
@@ -423,7 +414,7 @@ namespace pkl
 	}
 
 	template <typename T>
-	void LinkedList<T>::pop_front()
+	void forward_list<T>::pop_front()
 	{
 		if (pHead == nullptr)
 			throw ListException("List is empty. It`s impossible to pop a front element.");
@@ -436,13 +427,13 @@ namespace pkl
 	}
 
 	template <typename T>
-	void LinkedList<T>::pop_back()
+	void forward_list<T>::pop_back()
 	{
 		remove_at(mSize - 1);
 	}
 
 	template <typename T>
-	void LinkedList<T>::insert(const size_t index, value_type data)
+	void forward_list<T>::insert(const size_t index, value_type data)
 	{
 		if (index > mSize || index < 0)
 			throw ListException("Out of range error!!!");
@@ -464,19 +455,19 @@ namespace pkl
 	}
 
 	template <typename T>
-	bool LinkedList<T>::empty() const
+	bool forward_list<T>::empty() const
 	{
 		return mSize == 0 ? true : false;
 	}
 
 	template<typename T>
-	size_t LinkedList<T>::size() const
+	size_t forward_list<T>::size() const
 	{
 		return mSize;
 	}
 
 	template <typename T>
-	void LinkedList<T>::remove_at(const size_t index)
+	void forward_list<T>::remove_at(const size_t index)
 	{
 		if (pHead == nullptr)
 			throw ListException("List is empty. It`s impossible to remove an element.");
@@ -502,8 +493,8 @@ namespace pkl
 	}
 
 	template <typename T>
-	typename LinkedList<T>::reference
-		LinkedList<T>::front()
+	typename forward_list<T>::reference
+	forward_list<T>::front()
 	{
 		if (pHead == nullptr) {
 			throw ListException("List is empty. It`s impossible to get the front element.");
@@ -513,8 +504,8 @@ namespace pkl
 	}
 
 	template<typename T>
-	typename LinkedList<T>::const_reference
-		LinkedList<T>::front() const
+	typename forward_list<T>::const_reference
+	forward_list<T>::front() const
 	{
 		if (pHead == nullptr) {
 			throw ListException("List is empty. It`s impossible to get the front element.");
@@ -524,8 +515,8 @@ namespace pkl
 	}
 
 	template <typename T>
-	typename LinkedList<T>::reference
-		LinkedList<T>::back()
+	typename forward_list<T>::reference
+	forward_list<T>::back()
 	{
 		if (pHead == nullptr) {
 			throw ListException("List is empty. It`s impossible to get the last element.");
@@ -540,8 +531,8 @@ namespace pkl
 	}
 
 	template<typename T>
-	typename LinkedList<T>::const_reference
-		LinkedList<T>::back() const
+	typename forward_list<T>::const_reference
+	forward_list<T>::back() const
 	{
 		if (pHead == nullptr) {
 			throw ListException("List is empty. It`s impossible to get the last element.");
@@ -556,14 +547,14 @@ namespace pkl
 	}
 
 	template <typename T>
-	typename LinkedList<T>::reference
-		LinkedList<T>::value_at(const size_t index)
+	typename forward_list<T>::reference
+	forward_list<T>::value_at(const size_t index)
 	{
 		return this->operator[](index);
 	}
 
 	template <typename T>
-	void LinkedList<T>::remove_value(const size_t value)
+	void forward_list<T>::remove_value(const size_t value)
 	{
 		node_type* pTemp = pHead;
 		int index = 0;
@@ -580,53 +571,53 @@ namespace pkl
 	}
 
 	template<typename T>
-	typename LinkedList<T>::iterator
-		LinkedList<T>::begin()
+	typename forward_list<T>::iterator
+	forward_list<T>::begin()
 	{
 		return iterator(pHead);
 	}
 
 	template<typename T>
-	typename LinkedList<T>::const_iterator
-		LinkedList<T>::begin() const
+	typename forward_list<T>::const_iterator
+	forward_list<T>::begin() const
 	{
 		return const_iterator(pHead);
 	}
 
 	template<typename T>
-	typename LinkedList<T>::const_iterator
-		LinkedList<T>::cbegin() const
+	typename forward_list<T>::const_iterator
+	forward_list<T>::cbegin() const
 	{
 		return const_iterator(pHead);
 	}
 
 	template<typename T>
-	typename LinkedList<T>::iterator
-		LinkedList<T>::end()
+	typename forward_list<T>::iterator
+	forward_list<T>::end()
 	{
 		return iterator(nullptr);
 	}
 
 	template<typename T>
-	typename LinkedList<T>::const_iterator
-		LinkedList<T>::end() const
+	typename forward_list<T>::const_iterator
+	forward_list<T>::end() const
 	{
 		return const_iterator(nullptr);
 	}
 
 	template<typename T>
-	typename LinkedList<T>::const_iterator
-		LinkedList<T>::cend() const
+	typename forward_list<T>::const_iterator
+	forward_list<T>::cend() const
 	{
 		return const_iterator(nullptr);
 	}
 
 	template <typename T>
-	bool operator==(const LinkedList<T>& a, const LinkedList<T>& b)
+	bool operator==(const forward_list<T>& a, const forward_list<T>& b)
 	{
-		typename LinkedList<T>::const_iterator ia = a.begin();
-		typename LinkedList<T>::const_iterator ib = b.begin();
-		typename LinkedList<T>::const_iterator enda = a.end();
+		typename forward_list<T>::const_iterator ia = a.begin();
+		typename forward_list<T>::const_iterator ib = b.begin();
+		typename forward_list<T>::const_iterator enda = a.end();
 
 		if (a.size() == b.size())
 		{
@@ -641,9 +632,9 @@ namespace pkl
 	}
 
 	template <typename T>
-	bool operator!=(const LinkedList<T>& a, const LinkedList<T>& b)
+	bool operator!=(const forward_list<T>& a, const forward_list<T>& b)
 	{
 		return !(a == b);
 	}
 }
-#endif // !LINKEDLIST_H
+#endif // !FORWARD_LIST_H

@@ -22,20 +22,19 @@ size_t func(size_t value)
     return value;
 }
 
+
 int main(int argc, char *argv[])
 {
-    std::vector<int> v;
-    v.reserve(6);
-    v.push_back(123);
-    v.push_back(123);
-    v.push_back(123);
-    v.push_back(123);
-    v.push_back(123);
+    std::vector<int> vec(10, 2);
 
-    std::cout << v.capacity() << std::endl;
+    std::cout << vec.capacity() << std::endl;
+    std::cout << vec.size() << std::endl;
 
-    v.reserve(7);
-    std::cout << v.capacity() << std::endl;
+    vec.resize(15, 10);
+
+    std::cout << &vec[10] << std::endl;
+    std::cout << vec.size() << std::endl;
+
 
 	std::cin.get();
 	return 0;

@@ -41,7 +41,7 @@ namespace pkl
 	// 
 
 	template <typename T, typename Pointer, typename Reference>
-	struct Iterator //: public std::iterator<std::forward_iterator_tag, T>
+	struct Iterator 
 	{
 		typedef Iterator<T, Pointer, Reference>     this_type;
 		typedef Iterator<T, T*, T&>                 iterator;
@@ -177,7 +177,7 @@ namespace pkl
 
 	template <typename T, typename Pointer, typename Reference>
 	typename Iterator<T, Pointer, Reference>::this_type&
-		Iterator<T, Pointer, Reference>::operator++()
+    Iterator<T, Pointer, Reference>::operator++()
 	{
 		if (pCurrent == nullptr)
 			throw ListException("It`s impossible to increment an iterator");
@@ -187,7 +187,7 @@ namespace pkl
 
 	template <typename T, typename Pointer, typename Reference>
 	typename Iterator<T, Pointer, Reference>::this_type
-		Iterator<T, Pointer, Reference>::operator++(int)
+	Iterator<T, Pointer, Reference>::operator++(int)
 	{
 		if (pCurrent == nullptr)
 			throw ListException("It`s impossible to increment an iterator");
@@ -198,7 +198,7 @@ namespace pkl
 
 	template <typename T, typename Pointer, typename Reference>
 	typename Iterator<T, Pointer, Reference>::reference
-		Iterator<T, Pointer, Reference>::operator* () const
+	Iterator<T, Pointer, Reference>::operator* () const
 	{
 		if (pCurrent == nullptr)
 			throw ListException("It`s impossible to dereference an iterator");
@@ -207,7 +207,7 @@ namespace pkl
 
 	template <typename T, typename Pointer, typename Reference>
 	typename Iterator<T, Pointer, Reference>::pointer
-		Iterator<T, Pointer, Reference>::operator->() const
+	Iterator<T, Pointer, Reference>::operator->() const
 	{
 		if (pCurrent == nullptr)
 			throw ListException("It`s impossible to dereference an iterator");
@@ -328,7 +328,7 @@ namespace pkl
 
 	template<typename T>
 	typename forward_list<T>::this_type&
-		forward_list<T>::operator=(std::initializer_list<value_type> init_list)
+	forward_list<T>::operator=(std::initializer_list<value_type> init_list)
 	{
 		clear();
 
@@ -383,7 +383,7 @@ namespace pkl
 
 
 		if (index >= mSize || index < 0) {
-			throw ListException("Out of range error!!!");
+			throw ListException("Out of range error!!!"); 
 		}
 
 		node_type* pTemp = pHead;
@@ -455,7 +455,7 @@ namespace pkl
 	}
 
 	template <typename T>
-	bool forward_list<T>::empty() const
+	bool forward_list<T>::empty() const 
 	{
 		return mSize == 0 ? true : false;
 	}

@@ -4,8 +4,12 @@
 #define VECTOR_H
 
 #include <initializer_list>
+#include <exception>
 
 namespace pkl {
+
+
+
     ///////////// vector /////////////
     // 
     template <typename T>
@@ -36,9 +40,6 @@ namespace pkl {
 
         void swap(this_type& another);
 
-        //void assign(size_t n, const value_type& val);
-        //void assign(std::initializer_list<value_type> ilist);
-
         ~vector();
 
         reference       back();
@@ -47,17 +48,31 @@ namespace pkl {
         reference       front();
         const_reference front() const;
 
-        size_t      size() const;
-        size_t      capacity() const;
-        void        clear();
-        void        reserve(const size_t size);
-        bool        empty();
-        //void        shrink_to_fit();
-        //void        resize();
+        size_t          size() const;
+        void            resize(size_t n);
+        void            resize(size_t n, const value_type& val);
+        size_t          capacity() const;
+        bool            empty();
+        void            reserve(const size_t size);
+        void            shrink_to_fit();
+        
 
-        reference operator[](const size_t index);
+        pointer         data();
+        const_pointer   data() const;
+
+        reference       operator[](const size_t index);
         const_reference operator[](const size_t index) const;
-        //reference at(const size_t index);
+        reference       at(const size_t index);
+        const_reference at(const size_t index) const;
+
+        void assign(size_t n, const value_type& val);
+        void assign(std::initializer_list<value_type> il);
+
+        void push_back(const value_type &value);
+
+        // Doesn`t free a memory of the last element, reduces mSize by 1 and decrements pEnd
+        // It`s possible to access the element which has just been popped by iterator, which is not very good
+        void pop_back();                              
 
         iterator        begin();
         const_iterator  begin() const;
@@ -67,11 +82,19 @@ namespace pkl {
         const_iterator  end() const;
         const_iterator  cend() const;
 
+        void            clear();
+
     protected:
-        // Function which help to maintain vector and to avoid code duplication
-        void doAllocateMemory(size_t size);
-        void doDeallocateMemory();
-        void doCopyElements(const this_type & another, size_t size);
+        // Functions which help to maintain vector and to avoid code duplication
+
+        // Allocates memory and returns pointer, if size == 0 returns nullptr
+        pointer     doAllocate(size_t size);
+
+        // Just calls delete[] for p
+        void        doFree(pointer p);
+                    
+        void        doCopyElements(pointer pWhere , const_pointer pFrom, size_t size);
+        size_t      getNewCapacity(const size_t currentCapacity);
 
     private:
         pointer     pBegin;
@@ -86,30 +109,30 @@ namespace pkl {
     ///////////// vector /////////////
     // 
 
-    template<typename T>
+    template <typename T>
     vector<T>::vector() : 
         pBegin(nullptr), pEnd(nullptr), mSize(0), mCapacity(0)
     {
         
     }
 
-    template<typename T>
+    template <typename T>
     vector<T>::vector(size_t size)
     {
-        doAllocatoMemory(size);
+        pBegin = doAllocate(size);
+        mCapacity = size;
     }
 
 
-    template<typename T>
+    template <typename T>
     vector<T>::vector(size_t n, const value_type & val) : vector()
     {
-        doAllocateMemory(n);
+        T* pNewArray = doAllocate(n);
+        pBegin = pNewArray;
+        mCapacity = mSize = n;
 
-        typename vector<T>::pointer pTemp = pBegin;
-
-        for (size_t i = 0; i < n; i++, pTemp++) {
-            *pTemp = val;
-            mSize++;
+        for (size_t i = 0; i < n; i++, pNewArray++) {
+            *pNewArray = val;
         }
 
         pEnd = pBegin + mSize;
@@ -118,12 +141,12 @@ namespace pkl {
     template <typename T>
     vector<T>::vector(std::initializer_list<value_type> il) : vector()
     {
-        doAllocateMemory(il.size());
-        typename vector<T>::pointer pTemp = pBegin;
+        T* pNewArray = doAllocate(il.size());
+        pBegin = pNewArray;
+        mCapacity = mSize = il.size();
 
-        for (auto it = il.begin(); it != il.end(); ++it, pTemp++) {
-            *pTemp = *it;
-            mSize++;
+        for (auto it = il.begin(); it != il.end(); ++it, pNewArray++) {
+            *pNewArray = *it;
         }
 
         pEnd = pBegin + mSize;
@@ -133,19 +156,23 @@ namespace pkl {
     template <typename T>
     vector<T>::vector(const this_type & another) : vector()
     {
-        doAllocateMemory(another.size());
-        doCopyElements(another, another.size());
+        pBegin = doAllocate(another.size());
+        doCopyElements(pBegin, another.begin(), another.size());
+
+        mCapacity = another.capacity();
+        mSize = another.size();
+        pEnd = pBegin + mSize;
     }
 
 
-    template<typename T>
+    template <typename T>
     vector<T>::vector(this_type && another) : vector()
     {
         swap(another);
     }
 
 
-    template<typename T>
+    template <typename T>
     typename vector<T>::this_type& 
     vector<T>::operator=(const this_type & another)
     {
@@ -169,19 +196,18 @@ namespace pkl {
     }
 
 
-    template<typename T>
+    template <typename T>
     typename vector<T>::this_type&
     vector<T>::operator=(std::initializer_list<value_type> il)
     {
         clear();
 
-        doAllocateMemory(il.size());
+        T* pNewArray = doAllocate(il.size());
+        pBegin = pNewArray;
+        mCapacity = mSize = il.size();
 
-        typename vector<T>::pointer pTemp = pBegin;
-
-        for (auto it = il.begin(); it != il.end(); ++it, pTemp++) {
-            *pTemp = *it;
-            mSize++;
+        for (auto it = il.begin(); it != il.end(); ++it, pNewArray++) {
+            *pNewArray = *it;
         }
 
         pEnd = pBegin + mSize;
@@ -190,17 +216,18 @@ namespace pkl {
     }
 
 
-    template<typename T>
+    template <typename T>
     vector<T>::~vector()
     {
         clear();
     }
 
 
-    template<typename T>
+    template <typename T>
     void vector<T>::swap(this_type & another)
     {
         std::swap(pBegin, another.pBegin);
+        std::swap(pEnd, another.pEnd);
         std::swap(mSize, another.mSize);
         std::swap(mCapacity, another.mCapacity);
     }
@@ -213,6 +240,86 @@ namespace pkl {
     }
 
 
+    template<typename T>
+    void vector<T>::resize(size_t n)
+    {
+        if (n < mSize) {
+            pEnd -= (mSize - n);
+        }
+        else if (n > mSize && n <= mCapacity) {
+            for (size_t i = 0; i < (n - mSize); i++, pEnd++)
+                *pEnd = T();
+        }
+        else if (n > mCapacity) {
+            T*  pNewArray = doAllocate(n);
+
+            if (mSize) {
+                doCopyElements(pNewArray, pBegin, mSize);
+            }
+
+            doFree(pBegin);
+
+            pBegin = pNewArray;
+            pEnd = pBegin + mSize;
+            mCapacity = n;
+
+            for (size_t i = 0; i < (n - mSize); i++, pEnd++)
+                *pEnd = T();  
+        }
+
+        mSize = n;
+    }
+
+    template<typename T>
+    void vector<T>::resize(size_t n, const value_type & val)
+    {
+        if (n < mSize) {
+            pEnd -= (mSize - n);
+        }
+        else if (n > mSize && n <= mCapacity) {
+            for (size_t i = 0; i < (n - mSize); i++, pEnd++)
+                *pEnd = val;
+        }
+        else if (n > mCapacity) {
+            T*  pNewArray = doAllocate(n);
+
+            if (mSize) {
+                doCopyElements(pNewArray, pBegin, mSize);
+            }
+
+            doFree(pBegin);
+
+            pBegin = pNewArray;
+            pEnd = pBegin + mSize;
+            mCapacity = n;
+
+            for (size_t i = 0; i < (n - mSize); i++, pEnd++)
+                *pEnd = val;  
+        }
+
+        mSize = n;
+    }
+
+
+    template <typename T>
+    void vector<T>::shrink_to_fit()
+    {
+        if (mCapacity > mSize) {
+            T* pNewArray = doAllocate(mSize);
+
+            if (mSize) {
+                doCopyElements(pNewArray, pBegin, mSize);
+            }
+
+            free(pBegin);
+
+            pBegin      =   pNewArray;
+            pEnd        =   pBegin + mSize;
+            mCapacity   =   mSize;
+        }
+    }
+
+
     template <typename T>
     size_t vector<T>::capacity() const
     {
@@ -221,22 +328,25 @@ namespace pkl {
 
 
     template <typename T>
-    void vector<T>::reserve(const size_t size)
+    void vector<T>::reserve(const size_t reservedNumber)
     {
-        if (size <= capacity)
-            return;
+        if (reservedNumber > mCapacity) {
+            T*  pNewArray = doAllocate(reservedNumber);
 
-        if (pHead == nullptr) {
-            doAllocatoMemory(size);
-            return;
+            if (mSize) {
+                doCopyElements(pNewArray, pBegin, mSize);
+            }
+
+            doFree(pBegin);
+
+            pBegin      =   pNewArray;
+            pEnd        =   pBegin + mSize;
+            mCapacity   =   reservedNumber;
         }
-
-        clear();
-        doAllocatoMemory(size);
     }
 
 
-    template<typename T>
+    template <typename T>
     bool vector<T>::empty()
     {
         return mSize == 0 ? true : false;
@@ -246,7 +356,26 @@ namespace pkl {
     template <typename T>
     void vector<T>::clear()
     {
-        doDeallocateMemory();
+        doFree(pBegin);
+        pBegin = pEnd = nullptr;
+        mCapacity = 0;
+        mSize = 0;
+    }
+
+
+    template <typename T>
+    typename vector<T>::pointer
+    vector<T>::data()
+    {
+        return pBegin;
+    }
+
+
+    template <typename T>
+    typename vector<T>::const_pointer
+    vector<T>::data() const
+    {
+        return pBegin;
     }
 
 
@@ -258,11 +387,129 @@ namespace pkl {
     }
 
 
-    template<typename T>
+    template <typename T>
     typename vector<T>::const_reference 
     vector<T>::operator[](const size_t index) const
     {
         return *(pBegin + index);
+    }
+
+
+    template <typename T>
+    typename vector<T>::reference 
+    vector<T>::at(const size_t index)
+    {
+        if (pBegin == nullptr) {
+            throw std::logic_error("Vector is empty. It`s impossible to get an element.");
+        }
+
+        if (index >= mSize || index < 0) {
+            throw std::out_of_range("Index is out of range");
+        }
+
+        return *(pBegin + index);
+    }
+
+
+    template <typename T>
+    typename vector<T>::const_reference
+    vector<T>::at(const size_t index) const
+    {
+        if (pBegin == nullptr) {
+            throw std::logic_error("Vector is empty. It`s impossible to get an element.");
+        }
+
+        if (index >= mSize || index < 0) {
+            throw std::out_of_range("Index is out of range");
+        }
+
+        return *(pBegin + index);
+    }
+
+
+    template<typename T>
+    void vector<T>::assign(size_t n, const value_type& val)
+    {
+        if (mCapacity >= n) {
+            pointer pTemp = pBegin;
+            for (size_t i = 0; i < n; i++, pTemp++) {
+                *pTemp = val;
+            }
+        }
+        else {
+            doFree(pBegin);
+            pointer pNewArray = doAllocate(n);
+            pBegin = pNewArray;
+            mCapacity = n;
+            for (size_t i = 0; i < n; i++, pNewArray++) {
+                *pNewArray = val;
+            }
+        }
+
+        mSize = n;
+        pEnd = pBegin + mSize;
+    }
+
+
+    template<typename T>
+    void vector<T>::assign(std::initializer_list<value_type> il)
+    {
+        if (mCapacity >= il.size()) {
+            pointer pTemp = pBegin;
+            for (auto it = il.begin(); it != il.end(); ++it, pTemp++) {
+                *pTemp = *it;
+            }
+        }
+        else {
+            doFree(pBegin);
+            pointer pNewArray = doAllocate(il.size());
+            pBegin = pNewArray;
+            mCapacity = il.size();
+            for (auto it = il.begin(); it != il.end(); ++it, pNewArray++) {
+                *pNewArray = *it;
+            }
+        }
+
+        mSize = il.size();
+        pEnd = pBegin + mSize;
+    }
+
+
+    template <typename T>
+    void vector<T>::push_back(const value_type &value)
+    {
+        if (mSize == mCapacity) {
+            const size_t    prevSize    = mSize;
+            const size_t    newCapacity = getNewCapacity(prevSize);
+            pointer const   pNewData    = doAllocate(newCapacity);
+
+            doCopyElements(pNewData, pBegin, mSize);
+            doFree(pBegin);
+
+            pBegin      =   pNewData;
+            mCapacity   =   newCapacity;
+            pEnd        =   pBegin + prevSize;
+            *pEnd       =   value;
+
+            pEnd++;
+            mSize++;
+        }
+
+        else {
+            *pEnd = value;
+
+            pEnd++;
+            mSize++;
+        }
+    }
+
+    
+    template <typename T>
+    void vector<T>::pop_back()
+    {
+        pEnd--;
+        mSize--;
+        //pEnd->~value_type();
     }
 
 
@@ -286,7 +533,7 @@ namespace pkl {
     typename vector<T>::reference
     vector<T>::back()
     {
-        return *(pBegin + mSize - 1);
+        return *(pEnd - 1);
     }
 
 
@@ -294,7 +541,7 @@ namespace pkl {
     typename vector<T>::const_reference
     vector<T>::back() const
     {
-        return *(pBegin + mSize - 1);
+        return *(pEnd - 1);
     }
 
 
@@ -348,35 +595,42 @@ namespace pkl {
 
     // Functions which help to maintain vector
     template <typename T>
-    void vector<T>::doAllocateMemory(size_t size)
+    typename vector<T>::pointer
+    vector<T>::doAllocate(size_t size)
     {
-        pBegin = new T[size];
-        mCapacity = size;
-    }
-
-
-    template<typename T>
-    void vector<T>::doDeallocateMemory()
-    {
-        delete[] pBegin;
-        pBegin = pEnd = nullptr;
-        mCapacity = 0;
-        mSize = 0;
-    }
-
-
-    template<typename T>
-    void vector<T>::doCopyElements(const this_type & another, size_t size)
-    {
-        typename vector<T>::pointer pTemp = pBegin;
-
-        for (size_t i = 0; i < size; i++, pTemp++) {
-            *pTemp = another[i];
-            mSize++;
+        if (size) {
+            pointer p = new T[size];
+            return p;
         }
-
-        pEnd = pBegin + size;
+        else {
+            return nullptr;
+        }
     }
+
+
+    template <typename T>
+    void vector<T>::doFree(pointer p)
+    {
+        delete[] p;
+    }
+
+
+    template <typename T>
+    void vector<T>::doCopyElements(pointer pWhere, const_pointer pFrom, size_t size)
+    {
+        for (size_t i = 0; i < size; i++, pWhere++, pFrom++) {
+            *pWhere = *pFrom;
+        }
+    }
+
+
+    template<typename T>
+    size_t vector<T>::getNewCapacity(const size_t currentCapacity)
+    {
+        return (currentCapacity > 0) ? (currentCapacity * 2) : 1;
+    }
+
+
 }
 
 

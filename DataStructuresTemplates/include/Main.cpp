@@ -25,15 +25,13 @@ size_t func(size_t value)
 
 int main(int argc, char *argv[])
 {
-    std::vector<int> vec(10, 2);
+    std::vector<int> vec(2, 10);
 
-    std::cout << vec.capacity() << std::endl;
-    std::cout << vec.size() << std::endl;
+    auto it = vec.begin();
 
-    vec.resize(15, 10);
 
-    std::cout << &vec[10] << std::endl;
-    std::cout << vec.size() << std::endl;
+    auto it2 = vec.insert(it, 2, 13);
+
 
 
 	std::cin.get();

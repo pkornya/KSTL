@@ -74,6 +74,10 @@ namespace pkl {
         // It`s possible to access the element which has just been popped by iterator, which is not very good
         void pop_back();                              
 
+        iterator insert(const_iterator position, const value_type& val);
+        iterator insert(const_iterator position, size_t n, const value_type& val);
+
+
         iterator        begin();
         const_iterator  begin() const;
         const_iterator  cbegin() const;
@@ -92,9 +96,15 @@ namespace pkl {
 
         // Just calls delete[] for p
         void        doFree(pointer p);
-                    
-        void        doCopyElements(pointer pWhere , const_pointer pFrom, size_t size);
+
+        // Allocates new memory, copies elements if size != 0, frees old memory, sets new Capacity 
+        pointer     doRealloc(size_t newCapacity);
+        void        doCopyElements(iterator pWhere , const_iterator pFrom, size_t size);
+        void        doInsertValuesEnd(size_t n, const value_type& val);
+        void        doInsertValues(const_iterator position, size_t n, const value_type& value);
+
         size_t      getNewCapacity(const size_t currentCapacity);
+        
 
     private:
         pointer     pBegin;
@@ -160,8 +170,8 @@ namespace pkl {
         doCopyElements(pBegin, another.begin(), another.size());
 
         mCapacity = another.capacity();
-        mSize = another.size();
-        pEnd = pBegin + mSize;
+        mSize     = another.size();
+        pEnd      = pBegin + mSize;
     }
 
 
@@ -251,17 +261,8 @@ namespace pkl {
                 *pEnd = T();
         }
         else if (n > mCapacity) {
-            T*  pNewArray = doAllocate(n);
-
-            if (mSize) {
-                doCopyElements(pNewArray, pBegin, mSize);
-            }
-
-            doFree(pBegin);
-
-            pBegin = pNewArray;
-            pEnd = pBegin + mSize;
-            mCapacity = n;
+            pBegin = doRealloc(n);
+            pEnd   = pBegin + mSize;
 
             for (size_t i = 0; i < (n - mSize); i++, pEnd++)
                 *pEnd = T();  
@@ -281,18 +282,9 @@ namespace pkl {
                 *pEnd = val;
         }
         else if (n > mCapacity) {
-            T*  pNewArray = doAllocate(n);
-
-            if (mSize) {
-                doCopyElements(pNewArray, pBegin, mSize);
-            }
-
-            doFree(pBegin);
-
-            pBegin = pNewArray;
-            pEnd = pBegin + mSize;
-            mCapacity = n;
-
+            pBegin = doRealloc(n);
+            pEnd   = pBegin + mSize;
+            
             for (size_t i = 0; i < (n - mSize); i++, pEnd++)
                 *pEnd = val;  
         }
@@ -305,17 +297,8 @@ namespace pkl {
     void vector<T>::shrink_to_fit()
     {
         if (mCapacity > mSize) {
-            T* pNewArray = doAllocate(mSize);
-
-            if (mSize) {
-                doCopyElements(pNewArray, pBegin, mSize);
-            }
-
-            free(pBegin);
-
-            pBegin      =   pNewArray;
-            pEnd        =   pBegin + mSize;
-            mCapacity   =   mSize;
+            pBegin = doRealloc(mSize);
+            pEnd   = pBegin + mSize;
         }
     }
 
@@ -331,17 +314,8 @@ namespace pkl {
     void vector<T>::reserve(const size_t reservedNumber)
     {
         if (reservedNumber > mCapacity) {
-            T*  pNewArray = doAllocate(reservedNumber);
-
-            if (mSize) {
-                doCopyElements(pNewArray, pBegin, mSize);
-            }
-
-            doFree(pBegin);
-
-            pBegin      =   pNewArray;
-            pEnd        =   pBegin + mSize;
-            mCapacity   =   reservedNumber;
+            pBegin = doRealloc(reservedNumber);
+            pEnd   = pBegin + mSize; 
         }
     }
 
@@ -437,17 +411,19 @@ namespace pkl {
             }
         }
         else {
-            doFree(pBegin);
             pointer pNewArray = doAllocate(n);
-            pBegin = pNewArray;
+            doFree(pBegin);
+       
+            pBegin    = pNewArray;
             mCapacity = n;
+
             for (size_t i = 0; i < n; i++, pNewArray++) {
                 *pNewArray = val;
             }
         }
 
         mSize = n;
-        pEnd = pBegin + mSize;
+        pEnd  = pBegin + mSize;
     }
 
 
@@ -461,17 +437,19 @@ namespace pkl {
             }
         }
         else {
-            doFree(pBegin);
             pointer pNewArray = doAllocate(il.size());
-            pBegin = pNewArray;
+            doFree(pBegin);
+
+            pBegin    = pNewArray;
             mCapacity = il.size();
+
             for (auto it = il.begin(); it != il.end(); ++it, pNewArray++) {
                 *pNewArray = *it;
             }
         }
 
         mSize = il.size();
-        pEnd = pBegin + mSize;
+        pEnd  = pBegin + mSize;
     }
 
 
@@ -479,17 +457,12 @@ namespace pkl {
     void vector<T>::push_back(const value_type &value)
     {
         if (mSize == mCapacity) {
-            const size_t    prevSize    = mSize;
-            const size_t    newCapacity = getNewCapacity(prevSize);
-            pointer const   pNewData    = doAllocate(newCapacity);
+            const size_t prevSize    = mSize;
+            const size_t newCapacity = getNewCapacity(prevSize);
 
-            doCopyElements(pNewData, pBegin, mSize);
-            doFree(pBegin);
-
-            pBegin      =   pNewData;
-            mCapacity   =   newCapacity;
-            pEnd        =   pBegin + prevSize;
-            *pEnd       =   value;
+            pBegin = doRealloc(newCapacity);
+            pEnd   = pBegin + prevSize;
+            *pEnd  = value;
 
             pEnd++;
             mSize++;
@@ -510,6 +483,68 @@ namespace pkl {
         pEnd--;
         mSize--;
         //pEnd->~value_type();
+    }
+
+
+    template<typename T>
+    typename vector<T>::iterator 
+    vector<T>::insert(const_iterator position, const value_type & val)
+    {
+        pointer pLast;
+        pointer pPenultimate; 
+        size_t saveIter = position - pBegin;
+
+        if (mSize == mCapacity) {
+            const size_t prevSize    = mSize;
+            const size_t newCapacity = getNewCapacity(prevSize);
+
+            pBegin = doRealloc(newCapacity);
+            pEnd   = pBegin + prevSize;
+
+            pLast        = pEnd;
+            pPenultimate = pEnd - 1;
+            position     = pBegin + saveIter;
+
+            for (; pPenultimate != position; pLast--, pPenultimate--)
+                *pLast = *pPenultimate;
+            *pPenultimate = val;
+
+            pEnd++;
+            mSize++;
+        }
+
+        else {
+            pLast        = pEnd;
+            pPenultimate = pEnd - 1;
+
+            for (; pPenultimate != position; pLast--, pPenultimate--)
+                *pLast = *pPenultimate;
+            *pPenultimate = val;
+
+            pEnd++;
+            mSize++;
+        }
+
+        return pPenultimate;
+    }
+
+
+    template<typename T>
+    typename vector<T>::iterator
+    vector<T>::insert(const_iterator position, size_t n, const value_type & val)
+    {
+        pointer pLast = pEnd - 1;
+        size_t saveIter = position - pBegin;
+
+        if (pLast - position) {
+            doInsertValues(position, n, val);  
+        }
+        else {
+            doInsertValuesEnd(n, val);
+        }
+        
+        pointer pos = pBegin + saveIter;
+        return pos;
     }
 
 
@@ -615,11 +650,119 @@ namespace pkl {
     }
 
 
+    template<typename T>
+    typename vector<T>::pointer 
+    vector<T>::doRealloc(size_t newCapacity)
+    {
+        pointer const pNewData = doAllocate(newCapacity);
+
+        if (mSize)
+            doCopyElements(pNewData, pBegin, mSize);
+
+        doFree(pBegin);
+
+        mCapacity = newCapacity;
+
+        return pNewData;
+    }
+
+
     template <typename T>
-    void vector<T>::doCopyElements(pointer pWhere, const_pointer pFrom, size_t size)
+    void vector<T>::doCopyElements(iterator pWhere, const_iterator pFrom, size_t size)
     {
         for (size_t i = 0; i < size; i++, pWhere++, pFrom++) {
             *pWhere = *pFrom;
+        }
+    }
+
+
+    template<typename T>
+    void vector<T>::doInsertValuesEnd(size_t n, const value_type & val)
+    {
+        const size_t newSize = mSize + n;
+
+        if ((mSize + n) > mCapacity) {
+            const size_t prevSize    = mSize;
+            const size_t newCapacity = getNewCapacity(prevSize);
+
+            pBegin = doRealloc(newCapacity);
+            pEnd = pBegin + prevSize;
+
+            T* pNewLast = pBegin + newSize - 1; 
+            T* pLast    = pEnd - 1;
+
+            mSize = newSize;
+            pEnd = pBegin + newSize;
+
+            *pNewLast  = *pLast;
+
+            for (; pLast != pNewLast; pLast++)
+                *pLast = val;
+
+
+        }
+
+        else {
+            T* pNewLast = pBegin + newSize - 1;
+            T* pLast    = pEnd - 1;
+
+            mSize = newSize;
+            pEnd = pBegin + newSize;
+
+            *pNewLast = *pLast;
+
+            for (; pLast != pNewLast; pLast++)
+                *pLast = val;
+        }
+    }
+
+
+    template<typename T>
+    void vector<T>::doInsertValues(const_iterator position, size_t n, const value_type & val)
+    {
+        const size_t newSize = mSize + n;
+
+        pointer pNewLast;
+        pointer pLast;
+        size_t saveIter = position - pBegin;
+
+        if ((mSize + n) > mCapacity ) {
+            const size_t prevSize = mSize;
+            const size_t newCapacity = getNewCapacity(prevSize);
+
+            pBegin = doRealloc(newCapacity);
+            pEnd = pBegin + prevSize;
+
+            pLast = pEnd - 1;                       // points to the last element
+            position = pBegin + saveIter;
+            pNewLast = pBegin + newSize - 1;        // points to the new last element
+
+            mSize = newSize;
+            pEnd = pBegin + newSize;
+
+            for (; pLast != position; pLast--, pNewLast--) {
+                *pNewLast = *pLast;
+            }
+            *pNewLast = *pLast;
+
+            for (; pLast != pNewLast; pLast++)
+                *pLast = val;
+        }
+
+        else {
+            pLast = pEnd - 1;
+            pNewLast = pBegin + newSize - 1;
+                
+            mSize = newSize;
+            pEnd = pBegin + newSize;
+
+            for (; pLast != position; pLast--, pNewLast--) {
+                *pNewLast = *pLast;
+            }
+            *pNewLast = *pLast;
+
+            for (; pLast != pNewLast; pLast++)
+                *pLast = val;
         }
     }
 

@@ -306,7 +306,6 @@ TEST_F(ModifiersTest, PopBackTest)
     EXPECT_EQ(vec.back(), 11);
 }
 
-
 TEST_F(ModifiersTest, AssignTest)
 {
     vector<int> vec;
@@ -316,7 +315,6 @@ TEST_F(ModifiersTest, AssignTest)
     EXPECT_EQ(vec.size(), 2);
     EXPECT_EQ(vec.back(), 10);
     EXPECT_EQ(vec.front(), 10);
-
 
     vec.assign(1, 20);
     EXPECT_EQ(vec.capacity(), 2);
@@ -337,6 +335,121 @@ TEST_F(ModifiersTest, AssignTest)
     EXPECT_EQ(vec.size(), 50);
     EXPECT_EQ(vec.front(), 20);
     EXPECT_EQ(vec.back(), 20);
+}
+
+
+TEST_F(ModifiersTest, InsertOneTest)
+{
+    vector<int> vec = { 1, 2, 3, 4, 5 };
+
+    auto it1 = vec.begin() + 3;
+
+    auto it2 = vec.insert(it1, 123);
+
+    EXPECT_EQ(vec.capacity(), 10);
+    EXPECT_EQ(vec.size(), 6);
+    EXPECT_EQ(*it2, 123);
+    EXPECT_EQ(vec.back(), 5);
+    EXPECT_EQ(vec[3], 123);
+
+    it1 = vec.begin() + 3;
+    it2 = vec.insert(it1, 12);
+
+    EXPECT_EQ(vec.capacity(), 10);
+    EXPECT_EQ(vec.size(), 7);
+    EXPECT_EQ(*it2, 12);
+    EXPECT_EQ(vec.back(), 5);
+    EXPECT_EQ(vec[3], 12);
+
+    it1 = vec.begin();
+    it2 = vec.insert(it1, 34);
+
+    EXPECT_EQ(vec.capacity(), 10);
+    EXPECT_EQ(vec.size(), 8);
+    EXPECT_EQ(*it2, 34);
+    EXPECT_EQ(vec.back(), 5);
+    EXPECT_EQ(vec.front(), 34);
+}
+
+TEST_F(ModifiersTest, InsertFewTest)
+{
+    vector<int> vec = { 1, 2, 3, 4, 5 };
+
+    auto it1 = vec.begin() + 2;
+
+    auto it2 = vec.insert(it1, 2, 10);
+
+    EXPECT_EQ(vec.capacity(), 10);
+    EXPECT_EQ(vec.size(), 7);
+    EXPECT_EQ(vec.front(), 1);
+    EXPECT_EQ(vec.back(), 5);
+    EXPECT_EQ(vec[1], 2);
+    EXPECT_EQ(vec[2], 10);
+    EXPECT_EQ(vec[3], 10);
+    EXPECT_EQ(vec[4], 3);
+    EXPECT_EQ(vec[5], 4);
+    EXPECT_EQ(vec[6], 5);
+    EXPECT_EQ(*it2, 10);
+
+    it1 = vec.begin() + 3;
+    it2 = vec.insert(it1, 2, 13);
+
+    EXPECT_EQ(vec.capacity(), 10);
+    EXPECT_EQ(vec.size(), 9);
+    EXPECT_EQ(vec.front(), 1);
+    EXPECT_EQ(vec.back(), 5);
+    EXPECT_EQ(vec[1], 2);
+    EXPECT_EQ(vec[2], 10);
+    EXPECT_EQ(vec[3], 13);
+    EXPECT_EQ(vec[4], 13);
+    EXPECT_EQ(vec[5], 10);
+    EXPECT_EQ(vec[6], 3);
+    EXPECT_EQ(vec[7], 4);
+    EXPECT_EQ(*it2, 13);
+
+    it1 = vec.end();
+    it1--;
+    it2 = vec.insert(it1, 3, 20);
+
+    EXPECT_EQ(vec.capacity(), 18);
+    EXPECT_EQ(vec.size(), 12);
+    EXPECT_EQ(vec.front(), 1);
+    EXPECT_EQ(vec.back(), 5);
+    EXPECT_EQ(vec[1], 2);
+    EXPECT_EQ(vec[2], 10);
+    EXPECT_EQ(vec[3], 13);
+    EXPECT_EQ(vec[4], 13);
+    EXPECT_EQ(vec[5], 10);
+    EXPECT_EQ(vec[6], 3);
+    EXPECT_EQ(vec[7], 4);
+    EXPECT_EQ(vec[8], 20);
+    EXPECT_EQ(vec[9], 20);
+    EXPECT_EQ(vec[10], 20);
+    EXPECT_EQ(*it2, 20);
+    EXPECT_EQ(*(it2 - 3), 10);
+
+    it1 = vec.end();
+    it1--;
+    it2 = vec.insert(it1, 2, 100);
+
+    EXPECT_EQ(vec.capacity(), 18);
+    EXPECT_EQ(vec.size(), 14);
+    EXPECT_EQ(vec.front(), 1);
+    EXPECT_EQ(vec.back(), 5);
+    EXPECT_EQ(vec[1], 2);
+    EXPECT_EQ(vec[2], 10);
+    EXPECT_EQ(vec[3], 13);
+    EXPECT_EQ(vec[4], 13);
+    EXPECT_EQ(vec[5], 10);
+    EXPECT_EQ(vec[6], 3);
+    EXPECT_EQ(vec[7], 4);
+    EXPECT_EQ(vec[8], 20);
+    EXPECT_EQ(vec[9], 20);
+    EXPECT_EQ(vec[10], 20);
+    EXPECT_EQ(vec[11], 100);
+    EXPECT_EQ(vec[12], 100);
+    EXPECT_EQ(*it2, 100);
+    EXPECT_EQ(*(it2 - 10), 2);
 }
 
 #endif // TESTVECTOR

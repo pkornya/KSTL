@@ -8,10 +8,9 @@
 
 namespace pkl {
 
-
-
     ///////////// vector /////////////
     // 
+
     template <typename T>
     class vector {
         typedef vector<T>       this_type;
@@ -77,6 +76,8 @@ namespace pkl {
         iterator insert(const_iterator position, const value_type& val);
         iterator insert(const_iterator position, size_t n, const value_type& val);
 
+        iterator erase(const_iterator position);
+        iterator erase(const_iterator first, const_iterator last);
 
         iterator        begin();
         const_iterator  begin() const;
@@ -89,7 +90,7 @@ namespace pkl {
         void            clear();
 
     protected:
-        // Functions which help to maintain vector and to avoid code duplication
+        // Functions which help to maintain vector
 
         // Allocates memory and returns pointer, if size == 0 returns nullptr
         pointer     doAllocate(size_t size);
@@ -99,10 +100,7 @@ namespace pkl {
 
         // Allocates new memory, copies elements if size != 0, frees old memory, sets new Capacity 
         pointer     doRealloc(size_t newCapacity);
-        void        doCopyElements(iterator pWhere , const_iterator pFrom, size_t size);
-        void        doInsertValuesEnd(size_t n, const value_type& val);
-        void        doInsertValues(const_iterator position, size_t n, const value_type& value);
-
+        void        doCopyElements(iterator pWhere, const_iterator pFrom, size_t size);
         size_t      getNewCapacity(const size_t currentCapacity);
         
 
@@ -116,7 +114,7 @@ namespace pkl {
 
 
 
-    ///////////// vector /////////////
+    ///////////// vector ///////////// 
     // 
 
     template <typename T>
@@ -401,7 +399,7 @@ namespace pkl {
     }
 
 
-    template<typename T>
+    template <typename T>
     void vector<T>::assign(size_t n, const value_type& val)
     {
         if (mCapacity >= n) {
@@ -427,7 +425,7 @@ namespace pkl {
     }
 
 
-    template<typename T>
+    template <typename T>
     void vector<T>::assign(std::initializer_list<value_type> il)
     {
         if (mCapacity >= il.size()) {
@@ -486,13 +484,13 @@ namespace pkl {
     }
 
 
-    template<typename T>
+    template <typename T>
     typename vector<T>::iterator 
     vector<T>::insert(const_iterator position, const value_type & val)
     {
         pointer pLast;
         pointer pPenultimate; 
-        size_t saveIter = position - pBegin;
+        const size_t saveIter = position - pBegin;
 
         if (mSize == mCapacity) {
             const size_t prevSize    = mSize;
@@ -525,28 +523,110 @@ namespace pkl {
             mSize++;
         }
 
-        return pPenultimate;
+        return iterator(pBegin + saveIter);
     }
 
 
-    template<typename T>
+    template <typename T>
     typename vector<T>::iterator
     vector<T>::insert(const_iterator position, size_t n, const value_type & val)
     {
-        pointer pLast = pEnd - 1;
-        size_t saveIter = position - pBegin;
+        const size_t newSize = mSize + n;
 
-        if (pLast - position) {
-            doInsertValues(position, n, val);  
+        pointer pLast;                                // points to the last element before insertion
+        pointer pNewLast;                             // points to the last element after insertion     
+        const size_t saveIter = position - pBegin;    // in case of reallocation 
+
+        if ((mSize + n) > mCapacity) {
+            const size_t prevSize = mSize;
+            const size_t newCapacity = getNewCapacity(prevSize);
+
+            pBegin = doRealloc(newCapacity);
+            pEnd   = pBegin + prevSize;
+
+            pLast    = pEnd - 1;                       
+            position = pBegin + saveIter;
+            pNewLast = pBegin + newSize - 1;        
+
+            mSize = newSize;
+            pEnd  = pBegin + newSize;
+
+            for (; pLast != position - 1; pLast--, pNewLast--) {
+                *pNewLast = *pLast;
+            }
+
+            pointer pStopInsert = pNewLast + 1;
+            pointer pTemp       = pBegin + saveIter;
+
+            for (; pTemp != pStopInsert; pTemp++)
+                *pTemp = val;
         }
+
         else {
-            doInsertValuesEnd(n, val);
+            pLast    = pEnd - 1;                      
+            pNewLast = pBegin + newSize - 1;       
+
+            mSize = newSize;
+            pEnd  = pBegin + newSize;
+
+            for (; pLast != position - 1; pLast--, pNewLast--) {
+                *pNewLast = *pLast;
+            }
+
+            pointer pStopInsert = pNewLast + 1;
+            pointer pTemp       = pBegin + saveIter;
+
+            for (; pTemp != pStopInsert; pTemp++)
+                *pTemp = val;
         }
-        
-        pointer pos = pBegin + saveIter;
-        return pos;
+
+        return iterator(pBegin + saveIter);
     }
 
+    template <typename T>
+    typename vector<T>::iterator 
+    vector<T>::erase(const_iterator position)
+    {
+        if (position == pBegin && mSize == 1) {
+            clear();
+            return nullptr;
+        }
+        else if (mSize) {
+            pointer pTemp = pBegin + (position - pBegin);
+            pointer pNext = pTemp + 1;
+
+            for (; pNext != pEnd; pNext++, pTemp++)
+                *pTemp = *pNext;
+
+            mSize--;
+            pEnd--;
+        }
+
+        return iterator(pBegin + (position - pBegin));
+    }
+
+    
+    template <typename T>
+    typename vector<T>::iterator
+    vector<T>::erase(const_iterator first, const_iterator last)
+    {
+        if (first == pBegin && last == pEnd) {
+            clear();
+            return nullptr;
+        }
+        else if (first != last) {
+            pointer pFirst = pBegin + (first - pBegin);;
+            pointer pLast  = pBegin + (last - pBegin);
+
+            for (; pLast != pEnd; pFirst++, pLast++)
+                *pFirst = *pLast;
+
+            pEnd  -= (last - first );
+            mSize -= (last - first);
+
+            return iterator(pBegin + (first - pBegin));
+        }
+    }
 
     template <typename T>
     typename vector<T>::reference
@@ -675,98 +755,6 @@ namespace pkl {
         }
     }
 
-
-    template<typename T>
-    void vector<T>::doInsertValuesEnd(size_t n, const value_type & val)
-    {
-        const size_t newSize = mSize + n;
-
-        if ((mSize + n) > mCapacity) {
-            const size_t prevSize    = mSize;
-            const size_t newCapacity = getNewCapacity(prevSize);
-
-            pBegin = doRealloc(newCapacity);
-            pEnd = pBegin + prevSize;
-
-            T* pNewLast = pBegin + newSize - 1; 
-            T* pLast    = pEnd - 1;
-
-            mSize = newSize;
-            pEnd = pBegin + newSize;
-
-            *pNewLast  = *pLast;
-
-            for (; pLast != pNewLast; pLast++)
-                *pLast = val;
-
-
-        }
-
-        else {
-            T* pNewLast = pBegin + newSize - 1;
-            T* pLast    = pEnd - 1;
-
-            mSize = newSize;
-            pEnd = pBegin + newSize;
-
-            *pNewLast = *pLast;
-
-            for (; pLast != pNewLast; pLast++)
-                *pLast = val;
-        }
-    }
-
-
-    template<typename T>
-    void vector<T>::doInsertValues(const_iterator position, size_t n, const value_type & val)
-    {
-        const size_t newSize = mSize + n;
-
-        pointer pNewLast;
-        pointer pLast;
-        size_t saveIter = position - pBegin;
-
-        if ((mSize + n) > mCapacity ) {
-            const size_t prevSize = mSize;
-            const size_t newCapacity = getNewCapacity(prevSize);
-
-            pBegin = doRealloc(newCapacity);
-            pEnd = pBegin + prevSize;
-
-            pLast = pEnd - 1;                       // points to the last element
-            position = pBegin + saveIter;
-            pNewLast = pBegin + newSize - 1;        // points to the new last element
-
-            mSize = newSize;
-            pEnd = pBegin + newSize;
-
-            for (; pLast != position; pLast--, pNewLast--) {
-                *pNewLast = *pLast;
-            }
-            *pNewLast = *pLast;
-
-            for (; pLast != pNewLast; pLast++)
-                *pLast = val;
-        }
-
-        else {
-            pLast = pEnd - 1;
-            pNewLast = pBegin + newSize - 1;
-                
-            mSize = newSize;
-            pEnd = pBegin + newSize;
-
-            for (; pLast != position; pLast--, pNewLast--) {
-                *pNewLast = *pLast;
-            }
-            *pNewLast = *pLast;
-
-            for (; pLast != pNewLast; pLast++)
-                *pLast = val;
-        }
-    }
-
-
     template<typename T>
     size_t vector<T>::getNewCapacity(const size_t currentCapacity)
     {
@@ -774,7 +762,54 @@ namespace pkl {
     }
 
 
-}
+
+
+    ///////////// global operators ///////////// 
+    // 
+
+    template <typename T>
+    bool operator==(const vector<T>& a, const vector<T>& b)
+    {
+        return ((a.size() == b.size()) && std::equal(a.begin(), a.end(), b.begin()));
+    }
+
+
+    template <typename T>
+    bool operator!=(const vector<T>& a, const vector<T>& b)
+    {
+        return ((a.size() != b.size()) || !std::equal(a.begin(), a.end(), b.begin()));
+    }
+
+
+    template <typename T>
+    bool operator<(const vector<T>& a, const vector<T>& b)
+    {
+        return std::lexicographical_compare(a.begin(), a.end(), b.begin(), b.end());
+    }
+
+
+    template <typename T>
+    bool operator>(const vector<T>& a, const vector<T>& b)
+    {
+        return b < a;
+    }
+
+
+    template <typename T>
+    bool operator<=(const vector<T>& a, const vector<T>& b)
+    {
+        return !(b < a);
+    }
+
+
+    template <typename T>
+    bool operator>=(const vector<T>& a, const vector<T>& b)
+    {
+        return !(a < b);
+    }
+
+
+}   
 
 
 #endif // !VECTOR_H

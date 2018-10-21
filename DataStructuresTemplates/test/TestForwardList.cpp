@@ -7,11 +7,12 @@ using namespace pkl;
 
 //#define TESTFORWARDLIST
 
-#ifdef TESTFORWARDLIST
+#ifdef  TESTFORWARDLIST
 
 class ConstructorsTest : public ::testing::Test {};
 
-TEST_F(ConstructorsTest, DefaultConstructor) {
+TEST_F(ConstructorsTest, DefaultConstructor) 
+{
 	forward_list<int> list;
 
 	EXPECT_TRUE(list.empty());
@@ -20,21 +21,23 @@ TEST_F(ConstructorsTest, DefaultConstructor) {
 	EXPECT_EQ(list.begin(), list.end());
 }
 
-TEST_F(ConstructorsTest, InitializerList) {
+TEST_F(ConstructorsTest, InitializerList) 
+{
 	forward_list<int> list = { 1, 2, 3, 4, 5 };
 
 	EXPECT_EQ(list.size(), 5);
 	EXPECT_EQ(list.front(), 1);
 	EXPECT_EQ(list.back(), 5);
 
-	list = { 10, 20, 30, 40, 50 };
+	list = { 10, 20, 30, 50 };
 
-	EXPECT_EQ(list.size(), 5);
+	EXPECT_EQ(list.size(), 4);
 	EXPECT_EQ(list.front(), 10);
 	EXPECT_EQ(list.back(), 50);
 }
 
-TEST_F(ConstructorsTest, FillConstructor) {
+TEST_F(ConstructorsTest, FillConstructor) 
+{
 	forward_list<int> list(2, 10);
 
 	EXPECT_EQ(list.size(), 2);
@@ -42,21 +45,23 @@ TEST_F(ConstructorsTest, FillConstructor) {
 	EXPECT_EQ(list.back(), 10);
 }
 
-TEST_F(ConstructorsTest, CopyConstructor) {
+TEST_F(ConstructorsTest, CopyConstructor) 
+{
 	forward_list<int> list = { 1, 2, 3, 4 };
 
 	forward_list<int> testList(list);
 
 	ASSERT_NE(list.begin(), testList.begin());
 
-	EXPECT_EQ(testList.size(), 4);
-	EXPECT_EQ(testList.front(), 1);
+    testList.pop_front();
+	EXPECT_EQ(testList.size(), 3);
+	EXPECT_EQ(testList.front(), 2);
 	EXPECT_EQ(testList.back(), 4);
-	EXPECT_EQ(testList[1], 2);
-	EXPECT_EQ(testList[2], 3);
+	EXPECT_EQ(testList[1], 3);
 }
 
-TEST_F(ConstructorsTest, MoveConstructor) {
+TEST_F(ConstructorsTest, MoveConstructor) 
+{
 	forward_list<int> list1 = { 1, 2, 3, 4 };
 
 	forward_list<int> testList(std::move(list1));
@@ -70,11 +75,23 @@ TEST_F(ConstructorsTest, MoveConstructor) {
 	EXPECT_EQ(testList.back(), 4);
 	EXPECT_EQ(testList[1], 2);
 	EXPECT_EQ(testList[2], 3);
+
+    list1 = std::move(testList);
+    ASSERT_EQ(testList.begin(), nullptr);
+    ASSERT_EQ(testList.size(), 0);
+    ASSERT_NE(testList.begin(), list1.begin());
+
+    EXPECT_EQ(list1.size(), 4);
+    EXPECT_EQ(list1.front(), 1);
+    EXPECT_EQ(list1.back(), 4);
+    EXPECT_EQ(list1[1], 2);
+    EXPECT_EQ(list1[2], 3);
 }
 
 class AssignmentOperatorTest : public ::testing::Test {};
 
-TEST_F(AssignmentOperatorTest, AssignmentOperator) {
+TEST_F(AssignmentOperatorTest, AssignmentOperator) 
+{
 	forward_list<int> list = { 1, 2, 3, 4 };
 
 	forward_list<int> testList = { 5, 6, 7 };
@@ -90,7 +107,8 @@ TEST_F(AssignmentOperatorTest, AssignmentOperator) {
 	EXPECT_EQ(testList[2], 3);
 }
 
-TEST_F(AssignmentOperatorTest, MoveAssignmentOperator) {
+TEST_F(AssignmentOperatorTest, MoveAssignmentOperator) 
+{
 	forward_list<int> list = { 1, 2, 3, 4 };
 
 	forward_list<int> testList = { 5, 6, 7 };
@@ -110,14 +128,16 @@ TEST_F(AssignmentOperatorTest, MoveAssignmentOperator) {
 
 class SizeTest : public ::testing::Test {};
 
-TEST_F(SizeTest, SizeEmpty) {
+TEST_F(SizeTest, SizeEmpty) 
+{
 	forward_list<int> list;
 	int size = list.size();
 
 	EXPECT_EQ(size, 0);
 }
 
-TEST_F(SizeTest, Size1to2) {
+TEST_F(SizeTest, Size1to2) 
+{
 	forward_list<int> list;
 	list.push_front(4);
 
@@ -139,7 +159,8 @@ TEST_F(SizeTest, Size3) {
 
 class EmptyTest : public ::testing::Test {};
 
-TEST_F(EmptyTest, Empty) {
+TEST_F(EmptyTest, Empty) 
+{
 	forward_list<std::string> list;
 
 	EXPECT_TRUE(list.empty());
@@ -150,17 +171,18 @@ TEST_F(EmptyTest, Empty) {
 
 class PushFrontTest : public ::testing::Test {};
 
-TEST_F(PushFrontTest, Front1) {
+TEST_F(PushFrontTest, Front1) 
+{
 	forward_list<int> list;
 
 	list.push_front(123);
-	int front = list.front();
 
 	EXPECT_EQ(list.size(), 1);
-	EXPECT_EQ(front, 123);
+	EXPECT_EQ(list.front(), 123);
 }
 
-TEST_F(PushFrontTest, Front2) {
+TEST_F(PushFrontTest, Front2) 
+{
 	forward_list<int> list;
 
 	list.push_front(123);
@@ -168,21 +190,55 @@ TEST_F(PushFrontTest, Front2) {
 	list.push_front(-123);
 	list.push_front(45);
 
-	int front = list.front();
-
 	EXPECT_EQ(list.size(), 4);
-	EXPECT_EQ(front, 45);
+	EXPECT_EQ(list.front(), 45);
+}
+
+class AssignTest : public ::testing::Test {};
+
+TEST_F(AssignTest, AssignFill) 
+{
+    forward_list<int> list = { 1, 2, 3, 5 };
+
+    list.assign(3, 20);
+
+    EXPECT_EQ(list.size(), 3);
+    EXPECT_EQ(list.front(), 20);
+    EXPECT_EQ(list.back(), 20);
+    EXPECT_EQ(list[1], 20);
+}
+
+
+TEST_F(AssignTest, AssignInitList) 
+{
+    forward_list<int> list = { 1, 2, 3, 5 };
+
+    list.assign({ 20, 30, 40, 50 });
+    EXPECT_EQ(list.size(), 4);
+    EXPECT_EQ(list.front(), 20);
+    EXPECT_EQ(list.back(), 50);
+    EXPECT_EQ(list[1], 30);
+    EXPECT_EQ(list[2], 40);
+
+    list.assign({ 1, 2, 3, 4 });
+    EXPECT_EQ(list.size(), 4);
+    EXPECT_EQ(list.front(), 1);
+    EXPECT_EQ(list.back(), 4);
+    EXPECT_EQ(list[1], 2);
+    EXPECT_EQ(list[2], 3);
 }
 
 class SquareBrackets : public ::testing::Test {};
 
-TEST_F(SquareBrackets, EmptyList) {
+TEST_F(SquareBrackets, EmptyList) 
+{
 	forward_list<int> list;
 
 	ASSERT_THROW(list[2], ListException);
 }
 
-TEST_F(SquareBrackets, NonEmptyList) {
+TEST_F(SquareBrackets, NonEmptyList) 
+{
 	forward_list<int> list;
 
 	ASSERT_THROW(list[2], ListException);
@@ -199,18 +255,18 @@ TEST_F(SquareBrackets, NonEmptyList) {
 
 class PushBackTest : public ::testing::Test {};
 
-TEST_F(PushBackTest, PushEmpty) {
+TEST_F(PushBackTest, PushEmpty) 
+{
 	forward_list<int> list;
 
 	list.push_back(4);
 
-	int back = list.back();
-
 	EXPECT_EQ(list.size(), 1);
-	EXPECT_EQ(back, 4);
+	EXPECT_EQ(list.back(), 4);
 }
 
-TEST_F(PushBackTest, PushNonEmpty) {
+TEST_F(PushBackTest, PushNonEmpty) 
+{
 	forward_list<int> list;
 
 	list.push_front(-78);
@@ -218,24 +274,22 @@ TEST_F(PushBackTest, PushNonEmpty) {
 	list.push_back(456);
 
 	EXPECT_EQ(list.size(), 3);
-
-	int back = list.back();
-
-	EXPECT_EQ(back, 456);
-
+	EXPECT_EQ(list.back(), 456);
 	EXPECT_EQ(list.value_at(0), -78);
 	EXPECT_EQ(list.value_at(1), 123);
 }
 
 class PopFrontTest : public ::testing::Test {};
 
-TEST_F(PopFrontTest, PopFrontExceptions) {
+TEST_F(PopFrontTest, PopFrontExceptions) 
+{
 	forward_list<int> list;
 
 	ASSERT_THROW(list.pop_front(), ListException);
 }
 
-TEST_F(PopFrontTest, Pop1) {
+TEST_F(PopFrontTest, Pop1) 
+{
 	forward_list<int> list;
 
 	list.push_front(66);
@@ -248,7 +302,8 @@ TEST_F(PopFrontTest, Pop1) {
 	EXPECT_EQ(list.size(), 0);
 }
 
-TEST_F(PopFrontTest, Pop2) {
+TEST_F(PopFrontTest, Pop2) 
+{
 	forward_list<int> list;
 
 	list.push_front(12);
@@ -269,13 +324,15 @@ TEST_F(PopFrontTest, Pop2) {
 
 class PopBackTest : public ::testing::Test {};
 
-TEST_F(PopBackTest, PopBackExceptions) {
+TEST_F(PopBackTest, PopBackExceptions) 
+{
 	forward_list<int> list;
 
 	ASSERT_THROW(list.pop_back(), ListException);
 }
 
-TEST_F(PopBackTest, Pop1) {
+TEST_F(PopBackTest, Pop1) 
+{
 	forward_list<int> list;
 
 	list.push_back(4);
@@ -287,7 +344,8 @@ TEST_F(PopBackTest, Pop1) {
 	EXPECT_EQ(back, 4);
 }
 
-TEST_F(PopBackTest, Pop2) {
+TEST_F(PopBackTest, Pop2) 
+{
 	forward_list<int> list;
 
 	list.push_back(33);
@@ -310,7 +368,8 @@ TEST_F(PopBackTest, Pop2) {
 
 class ValueAtTest : public ::testing::Test {};
 
-TEST_F(ValueAtTest, Value012) {
+TEST_F(ValueAtTest, Value012) 
+{
 	forward_list<int> list;
 
 	list.push_front(99);
@@ -325,14 +384,16 @@ TEST_F(ValueAtTest, Value012) {
 
 class InsertTest : public ::testing::Test {};
 
-TEST_F(InsertTest, InsertExceptions) {
+TEST_F(InsertTest, InsertExceptions) 
+{
 	forward_list<int> list;
 
 	ASSERT_THROW(list.insert(2, 12), ListException);
 	ASSERT_THROW(list.insert(-1, 12), ListException);
 }
 
-TEST_F(InsertTest, InsertFrontEmpty) {
+TEST_F(InsertTest, InsertFrontEmpty) 
+{
 	forward_list<int> list;
 
 	list.insert(0, 3);
@@ -341,7 +402,8 @@ TEST_F(InsertTest, InsertFrontEmpty) {
 	EXPECT_EQ(list.size(), 1);
 }
 
-TEST_F(InsertTest, InsertFrontNonEmpty) {
+TEST_F(InsertTest, InsertFrontNonEmpty) 
+{
 	forward_list<int> list;
 
 	list.push_front(123);
@@ -352,7 +414,8 @@ TEST_F(InsertTest, InsertFrontNonEmpty) {
 	EXPECT_EQ(list.size(), 2);
 }
 
-TEST_F(InsertTest, InsertBack) {
+TEST_F(InsertTest, InsertBack) 
+{
 	forward_list<int> list{};
 
 	list.push_back(123);
@@ -362,7 +425,8 @@ TEST_F(InsertTest, InsertBack) {
 	EXPECT_EQ(list.size(), 2);
 }
 
-TEST_F(InsertTest, InsertMid) {
+TEST_F(InsertTest, InsertMid) 
+{
 	forward_list<int> list;
 
 	list.push_back(123);
@@ -379,7 +443,8 @@ TEST_F(InsertTest, InsertMid) {
 
 class RemoveAtTest : public ::testing::Test {};
 
-TEST_F(RemoveAtTest, RemoveAtExceptions) {
+TEST_F(RemoveAtTest, RemoveAtExceptions) 
+{
 	forward_list<int> list;
 	
 	ASSERT_THROW(list.remove_at(2), ListException);
@@ -392,7 +457,8 @@ TEST_F(RemoveAtTest, RemoveAtExceptions) {
 	ASSERT_THROW(list.remove_at(25), ListException);
 }
 
-TEST_F(RemoveAtTest, RemoveOnly) {
+TEST_F(RemoveAtTest, RemoveOnly) 
+{
 	forward_list<int> list;
 
 	list.push_back(44);
@@ -401,7 +467,8 @@ TEST_F(RemoveAtTest, RemoveOnly) {
 	EXPECT_EQ(list.size(), 0);
 }
 
-TEST_F(RemoveAtTest, RemoveFirst) {
+TEST_F(RemoveAtTest, RemoveFirst) 
+{
 	forward_list<int> list;
 
 	list.push_back(44);
@@ -412,7 +479,8 @@ TEST_F(RemoveAtTest, RemoveFirst) {
 	EXPECT_EQ(list[0], 55);
 }
 
-TEST_F(RemoveAtTest, RemoveLast) {
+TEST_F(RemoveAtTest, RemoveLast) 
+{
 	forward_list<int> list;
 
 	list.push_back(44);
@@ -423,7 +491,8 @@ TEST_F(RemoveAtTest, RemoveLast) {
 	EXPECT_EQ(list[0], 44);
 }
 
-TEST_F(RemoveAtTest, RemoveMid) {
+TEST_F(RemoveAtTest, RemoveMid) 
+{
 	forward_list<int> list;
 
 	list.push_back(44);
@@ -438,7 +507,8 @@ TEST_F(RemoveAtTest, RemoveMid) {
 
 class RemoveValueTest : public ::testing::Test {};
 
-TEST_F(RemoveValueTest, RemoveNone) {
+TEST_F(RemoveValueTest, RemoveNone) 
+{
 	forward_list<int> list;
 
 	list.remove_value(5);
@@ -446,7 +516,8 @@ TEST_F(RemoveValueTest, RemoveNone) {
 	EXPECT_EQ(list.size(), 0);
 }
 
-TEST_F(RemoveValueTest, RemoveOnly) {
+TEST_F(RemoveValueTest, RemoveOnly) 
+{
 	forward_list<int> list;
 
 	list.push_back(5);
@@ -455,7 +526,8 @@ TEST_F(RemoveValueTest, RemoveOnly) {
 	EXPECT_EQ(list.size(), 0);
 }
 
-TEST_F(RemoveValueTest, RemoveFirst) {
+TEST_F(RemoveValueTest, RemoveFirst) 
+{
 	forward_list<int> list;
 
 	list.push_back(5);
@@ -466,7 +538,8 @@ TEST_F(RemoveValueTest, RemoveFirst) {
 	EXPECT_EQ(list.front(), 22);
 }
 
-TEST_F(RemoveValueTest, RemoveLast) {
+TEST_F(RemoveValueTest, RemoveLast) 
+{
 	forward_list<int> list;
 
 	list.push_back(10);
@@ -477,7 +550,8 @@ TEST_F(RemoveValueTest, RemoveLast) {
 	EXPECT_EQ(list.back(), 10);
 }
 
-TEST_F(RemoveValueTest, RemoveMid) {
+TEST_F(RemoveValueTest, RemoveMid) 
+{
 	forward_list<int> list;
 
 	list.push_back(10);
@@ -504,7 +578,7 @@ TEST_F(IteratorTest, BeginTest)
 	ASSERT_FALSE(list.begin() == nullptr);
 
 	auto it = list.begin();
-	auto const_it = list.begin();
+	auto const_it = list.cbegin();
 
 	EXPECT_EQ(*it, 'a');
 	EXPECT_EQ(*const_it, 'a');
@@ -512,7 +586,7 @@ TEST_F(IteratorTest, BeginTest)
 	list.push_front('b');
 
 	it = list.begin();
-	const_it = list.begin();
+	const_it = list.cbegin();
 
 	EXPECT_EQ(*it, 'b');
 	EXPECT_EQ(*const_it, 'b');

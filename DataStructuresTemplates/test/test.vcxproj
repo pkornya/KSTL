@@ -156,6 +156,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="TestForwardList.cpp" />
+    <ClCompile Include="TestList.cpp" />
     <ClCompile Include="TestVector.cpp" />
   </ItemGroup>
   <ItemGroup>

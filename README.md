@@ -1,6 +1,6 @@
 # Data_Structures
 
-It is an Implementation of some data structures which functionality is very similar to functionality of containers from STL. 
+It is an Implementation of some data structures which functionality is very similar to functionality of containers from STL.
 Goals of this project:
  - Understand the way STL containers, algorithms and iterators work;
  - practice memory management and template programming;

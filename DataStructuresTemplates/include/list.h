@@ -41,9 +41,9 @@ namespace pkl {
 
     public:
 
-        ListIterator();
-        ListIterator(const this_type& another) = default;
-        ListIterator(node_type* pElement);
+        //ListIterator();
+        ListIterator(const node_type* pElement);
+        ListIterator(const iterator& x);
 
         bool		operator==(const this_type& another) const;
         bool		operator!=(const this_type& another) const;
@@ -58,7 +58,7 @@ namespace pkl {
         this_type	operator--(int);
 
     public:
-        node_type* pCurrent;
+        node_type* pNode;
     };
 
 
@@ -92,14 +92,14 @@ namespace pkl {
 
         this_type& operator=(const this_type& another);
         this_type& operator=(this_type&& another);
-        this_type& operator=(std::initializer_list<value_type> init_list);
+        this_type& operator=(std::initializer_list<value_type> il);
 
         void swap(this_type& another);
 
         ~list();
 
-         void assign(size_t n, const value_type& val);
-         void assign(std::initializer_list<value_type> il);
+        void assign(size_t n, const value_type& val);
+        void assign(std::initializer_list<value_type> il);
 
         iterator        begin();
         const_iterator  begin()  const;
@@ -114,8 +114,8 @@ namespace pkl {
 
         void        clear();
 
-        //void      resize(size_type n);
-        //void      resize(size_type n, const value_type& val);
+        void      resize(size_t n);
+        void      resize(size_t n, const value_type& val);
 
         reference       front();
         const_reference front() const;
@@ -124,21 +124,17 @@ namespace pkl {
         const_reference back() const;
 
         void push_front(const value_type& val);
-        //void push_front(value_type&& val);
-
         void push_back(const value_type& val);
-       //void push_back(value_type&& val);
 
         void pop_front();
         void pop_back();
 
-       //iterator insert(const_iterator position, const value_type& val);
-       //iterator insert(const_iterator position, size_type n, const value_type& val);
-       //iterator insert(const_iterator position, value_type&& val);
-       //iterator insert(const_iterator position, initializer_list<value_type> il);
+        iterator insert(const_iterator position, const value_type& val);
+        iterator insert(const_iterator position, size_t n, const value_type& val);
+        iterator insert(const_iterator position, std::initializer_list<value_type> il);
 
-        //iterator erase(const_iterator position);
-        //iterator erase(const_iterator first, const_iterator last);
+        iterator erase(const_iterator position);
+        iterator erase(const_iterator first, const_iterator last);
 
     private:
         node_type* pBegin;
@@ -166,27 +162,35 @@ namespace pkl {
     ///////////// Iterator /////////////
     // 
 
-    template<typename T, typename Pointer, typename Reference>
+    /*template<typename T, typename Pointer, typename Reference>
     ListIterator<T, Pointer, Reference>::ListIterator() :
-        pCurrent(nullptr)
+        pNode(nullptr)
+    {
+
+    }*/
+
+
+    template <typename T, typename Pointer, typename Reference>
+    ListIterator<T, Pointer, Reference>::ListIterator(const node_type* pElement)
+        : pNode(const_cast<node_type*>(pElement))
     {
 
     }
 
 
-    template<typename T, typename Pointer, typename Reference>
-    ListIterator<T, Pointer, Reference>::ListIterator(node_type * pElement)
-        : pCurrent(pElement)
+    template <typename T, typename Pointer, typename Reference>
+    ListIterator<T, Pointer, Reference>::ListIterator(const iterator & x)
+        : pNode(const_cast<node_type*>(x.pNode))
     {
 
     }
 
 
-    template<typename T, typename Pointer, typename Reference>
+    template <typename T, typename Pointer, typename Reference>
     typename ListIterator<T, Pointer, Reference>::reference
     ListIterator<T, Pointer, Reference>::operator*() const
     {
-        return pCurrent->data;
+        return pNode->data;
     }
 
 
@@ -194,7 +198,7 @@ namespace pkl {
     typename ListIterator<T, Pointer, Reference>::pointer
     ListIterator<T, Pointer, Reference>::operator->() const
     {
-        return &pCurrent->data;
+        return &pNode->data;
     }
 
 
@@ -202,7 +206,7 @@ namespace pkl {
     typename ListIterator<T, Pointer, Reference>::this_type&
     ListIterator<T, Pointer, Reference>::operator++()
     {
-        pCurrent = pCurrent->pNext;
+        pNode = pNode->pNext;
         return *this;
     }
 
@@ -221,7 +225,7 @@ namespace pkl {
     typename ListIterator<T, Pointer, Reference>::this_type&
     ListIterator<T, Pointer, Reference>::operator--()
     {
-        pCurrent = pCurrent->pPrev;
+        pNode = pNode->pPrev;
         return *this;
     }
 
@@ -237,16 +241,32 @@ namespace pkl {
 
 
     template <typename T, typename Pointer, typename Reference>
-    bool ListIterator<T, Pointer, Reference>::operator == (const this_type& other) const
+    bool ListIterator<T, Pointer, Reference>::operator==(const this_type& other) const
     {
-        return pCurrent == other.pCurrent;
+        return pNode == other.pNode;
     }
 
 
     template <typename T, typename Pointer, typename Reference>
-    bool ListIterator<T, Pointer, Reference>::operator != (const this_type& other) const
+    bool ListIterator<T, Pointer, Reference>::operator!=(const this_type& other) const
     {
-        return !(pCurrent == other.pCurrent);
+        return !(pNode == other.pNode);
+    }
+
+
+    template <typename T, typename PointerA, typename ReferenceA, typename PointerB, typename ReferenceB>
+    bool operator==(const ListIterator<T, PointerA, ReferenceA>& a,
+                    const ListIterator<T, PointerB, ReferenceB>& b)
+    {
+        return a.pNode == b.pNode;
+    }
+
+
+    template <typename T, typename PointerA, typename ReferenceA, typename PointerB, typename ReferenceB>
+    bool operator!=(const ListIterator<T, PointerA, ReferenceA>& a,
+                    const ListIterator<T, PointerB, ReferenceB>& b)
+    {
+        return a.pNode != b.pNode;
     }
 
 
@@ -377,7 +397,6 @@ namespace pkl {
 
         for (auto it = il.begin() ; it != il.end(); ++it)
             push_back(*it);
-
     }
 
 
@@ -481,6 +500,119 @@ namespace pkl {
 
 
     template <typename T>
+    typename list<T>::iterator 
+    list<T>::insert(const_iterator position, const value_type& val)
+    {
+        if (position == begin()) {
+            push_front(val);
+            return begin();
+        }
+        else if (position != nullptr) {
+            position.pNode->pPrev->pNext = new node_type(position.pNode->pPrev, val, position.pNode); 
+            position.pNode->pPrev        = position.pNode->pPrev->pNext;
+
+            mSize++;
+
+            return iterator(position.pNode->pPrev);
+        }
+    }
+     
+    
+    template <typename T>
+    typename list<T>::iterator 
+    list<T>::insert(const_iterator position, size_t n, const value_type& val)
+    {
+        if (position == begin()) {
+            for (int i = n; i > 0; i--)
+                push_front(val);
+            return begin();
+        }
+        else if (position != nullptr) {
+            for (int i = n; i > 0; i--) {
+                position.pNode->pPrev->pNext = new node_type(position.pNode->pPrev, val, position.pNode);
+                position.pNode->pPrev        = position.pNode->pPrev->pNext;
+                position.pNode               = position.pNode->pPrev;
+
+                mSize++;
+            }
+
+            return iterator(position.pNode);
+        }
+    }
+
+
+    template <typename T>
+    typename list<T>::iterator
+    list<T>::insert(const_iterator position, std::initializer_list<value_type> il)
+    {
+        if (pBegin == nullptr) {
+            for (auto it = il.begin(); it != il.end(); ++it)
+                push_back(*it);
+            return begin();
+        }
+ 
+        else if (position != nullptr) {
+            auto it          = il.begin();
+            iterator superit = insert(position, *it);
+
+            for (auto it = il.begin() + 1; it != il.end(); ++it) {
+                position.pNode->pPrev->pNext = new node_type(position.pNode->pPrev, *it, position.pNode);
+                position.pNode->pPrev        = position.pNode->pPrev->pNext;
+
+                mSize++;
+            }
+
+            return superit;
+        }
+    }
+
+
+    template <typename T>
+    typename list<T>::iterator
+    list<T>::erase(const_iterator position)
+    {
+        if (position == begin()) {
+            pop_front();
+            //return begin();
+        }
+        else if (position == end()) {
+            pop_back();
+            //return end();
+        }
+        else { 
+            node_type* pTemp    = position.pNode;
+            pTemp->pPrev->pNext = pTemp->pNext;
+            pTemp->pNext->pPrev = pTemp->pPrev;
+            position.pNode      = position.pNode->pNext;
+
+            delete pTemp;
+            mSize--;
+
+            //return iterator(position.pNode);
+        }
+
+        return iterator(position.pNode);
+    }
+
+    template <typename T>
+    typename list<T>::iterator
+    list<T>::erase(const_iterator first, const_iterator last)
+    {
+        if (first == begin() && last == end())
+        {	
+            clear();
+            return end();
+        }
+        else
+        {	
+            while (first != last)
+                first = erase(first);
+            return iterator(last.pNode);
+        }
+    }
+
+
+    template <typename T>
     typename list<T>::iterator
     list<T>::begin()
     {
@@ -508,7 +640,8 @@ namespace pkl {
     typename list<T>::iterator
     list<T>::end()
     {
-        return iterator(pEnd);
+        //return iterator(pEnd);
+        return iterator(nullptr);
     }
 
 
@@ -516,7 +649,8 @@ namespace pkl {
     typename list<T>::const_iterator
     list<T>::end() const
     {
-        return const_iterator(pEnd);
+        //return const_iterator(pEnd);
+        return iterator(nullptr);
     }
 
 
@@ -524,7 +658,8 @@ namespace pkl {
     typename list<T>::const_iterator
     list<T>::cend() const
     {
-        return const_iterator(pEnd);
+        //return const_iterator(pEnd);
+        return iterator(nullptr);
     }
 
 
@@ -555,6 +690,34 @@ namespace pkl {
 
         mSize = 0;
         pEnd  = nullptr;
+    }
+
+
+    template <typename T>
+    void list<T>::resize(size_t n)
+    {
+        if (mSize < n) {
+            while (n > mSize)
+                push_back(T());
+        }
+        else {
+            while (n < mSize)
+                pop_back();
+        }
+    }
+
+
+    template <typename T>
+    void list<T>::resize(size_t n, const value_type& val)
+    {
+        if (mSize < n) {
+            while (n > mSize)
+                push_back(val);
+        }
+        else {
+            while (n < mSize)
+                pop_back();
+        }
     }
 
 

@@ -1,4 +1,4 @@
-# Data_Structures
+# PSTL
 
 It is an implementation of a small library which functionality is very similar to functionality of STL.
 Goals of this project:
